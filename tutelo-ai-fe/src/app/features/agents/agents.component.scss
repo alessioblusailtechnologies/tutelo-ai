@@ -1,0 +1,133 @@
+.content {
+  padding: 20px 28px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.agenti-hero {
+  background: linear-gradient(135deg, #0A1929 0%, #1B3D6F 60%, #2563B0 100%);
+  border-radius: 18px;
+  padding: 28px 32px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: rgba(126, 184, 255, 0.07);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: 60px;
+    bottom: -60px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: rgba(126, 184, 255, 0.05);
+  }
+}
+
+.agenti-hero-text {
+  flex: 1;
+}
+
+.agenti-hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: white;
+  margin-bottom: 6px;
+}
+
+.agenti-hero-desc {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.55;
+  max-width: 480px;
+}
+
+.agenti-hero-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  background: white;
+  color: var(--navy);
+  border-radius: 10px;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+
+  &:hover {
+    background: #EBF2FF;
+  }
+}
+
+.agenti-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.agent-card.new-card {
+  border: 1.5px dashed rgba(27, 61, 111, 0.2);
+  background: var(--bg-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: var(--blue);
+    background: #EBF2FF;
+  }
+}
+
+.new-card-inner {
+  text-align: center;
+}
+
+.new-card-plus {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(37, 99, 176, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 10px;
+  font-size: 20px;
+  color: var(--blue);
+}
+
+.new-card-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue);
+  margin-bottom: 3px;
+}
+
+.new-card-sub {
+  font-size: 11px;
+  color: var(--text-faint);
+}

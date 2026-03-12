@@ -1,0 +1,113 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --navy: #0A1929;
+  --navy-mid: #1B3D6F;
+  --blue: #2563B0;
+  --blue-light: #3A82D4;
+  --sky: #7EB8FF;
+  --bg: #E8EDF5;
+  --bg-light: #F4F7FB;
+  --white: #fff;
+  --text: #1B3D6F;
+  --text-muted: #7A9CC0;
+  --text-faint: #A0B8CC;
+  --border: rgba(27, 61, 111, 0.1);
+  --shadow: 0 4px 40px rgba(27, 61, 111, 0.08);
+  --shadow-md: 0 8px 48px rgba(27, 61, 111, 0.12);
+  --tag-preventivo: #2563B0;
+  --tag-sinistro: #C0392B;
+  --tag-rinnovo: #1A7A4A;
+  --tag-richiesta: #7B5EA7;
+  --tag-preventivo-bg: #EBF2FF;
+  --tag-sinistro-bg: #FDECEA;
+  --tag-rinnovo-bg: #E8F6EF;
+  --tag-richiesta-bg: #F3EEF9;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  color: var(--text);
+}
+
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.15s;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover {
+  background: var(--bg-light);
+}
+
+.btn-primary {
+  background: var(--blue);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--navy-mid);
+}
+
+.pratica-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 1px 7px;
+  border-radius: 20px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.pratica-tag.preventivo { background: var(--tag-preventivo-bg); color: var(--tag-preventivo); }
+.pratica-tag.sinistro   { background: var(--tag-sinistro-bg);   color: var(--tag-sinistro); }
+.pratica-tag.rinnovo    { background: var(--tag-rinnovo-bg);    color: var(--tag-rinnovo); }
+.pratica-tag.richiesta  { background: var(--tag-richiesta-bg);  color: var(--tag-richiesta); }
+.pratica-tag.nuovo      { background: rgba(27, 61, 111, 0.06); color: var(--text-muted); border: 1px dashed rgba(27, 61, 111, 0.18); }
+
+.ai-mini-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 1px 5px;
+  background: linear-gradient(135deg, #EBF2FF, #E0ECF8);
+  border: 1px solid rgba(37, 99, 176, 0.15);
+  border-radius: 20px;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--blue);
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.priority-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 20px;
+}
+
+.priority-label.high { background: #FDECEA; color: #C0392B; }
+.priority-label.med  { background: #FFF5E0; color: #B7660F; }

@@ -1,0 +1,86 @@
+<div class="modal-overlay" (click)="onOverlayClick($event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-header-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/>
+        </svg>
+      </div>
+      <div>
+        <div class="modal-title">Nuovo Agente AI</div>
+        <div class="modal-sub">Descrivi cosa deve fare — l'AI costruisce i passi automaticamente</div>
+      </div>
+      <button class="modal-close" (click)="close.emit()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Nome agente</label>
+        <input class="form-input" type="text" placeholder="es. Reminder rinnovi, Triage sinistri…" [(ngModel)]="agentName">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Istruzioni in linguaggio naturale</label>
+        <div class="instructions-box">
+          <div class="instructions-box-label">Descrivi cosa deve fare l'agente</div>
+          <textarea
+            class="instructions-textarea"
+            placeholder="Trovami tutti gli utenti con la polizza in scadenza entro 30 giorni e invia una mail con il reminder. Se il cliente non risponde entro 5 giorni, apri automaticamente una pratica di rinnovo e avvisami."
+            [(ngModel)]="instructions"
+          ></textarea>
+          <div class="instructions-hint">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            Puoi usare linguaggio naturale — l'AI interpreta e costruisce i passi
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Quando si attiva</label>
+        <div class="trigger-grid">
+          @for (trigger of triggers; track trigger.value) {
+            <div
+              class="trigger-opt"
+              [class.selected]="selectedTrigger() === trigger.value"
+              (click)="selectTrigger(trigger.value)"
+            >
+              <div class="trigger-opt-icon">{{ trigger.icon }}</div>
+              <div class="trigger-opt-label">{{ trigger.label }}</div>
+              <div class="trigger-opt-sub">{{ trigger.sub }}</div>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Canali di output</label>
+        <div class="channel-row">
+          @for (channel of channels(); track channel.label; let i = $index) {
+            <div
+              class="channel-check"
+              [class.selected]="channel.selected"
+              (click)="toggleChannel(i)"
+            >
+              {{ channel.label }}
+            </div>
+          }
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Passi generati dall'AI</label>
+        <div class="preview-steps">
+          @for (step of modalSteps(); track step; let i = $index) {
+            <div class="preview-step-item">
+              <div class="preview-step-num">{{ i + 1 }}</div>
+              {{ step }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" (click)="close.emit()">Annulla</button>
+      <button class="btn btn-primary" (click)="createAgent()">✓ Crea Agente</button>
+    </div>
+  </div>
+</div>

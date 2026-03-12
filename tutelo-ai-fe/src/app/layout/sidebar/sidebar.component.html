@@ -1,0 +1,104 @@
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <svg width="34" height="34" viewBox="0 0 72 72" fill="none">
+      <defs>
+        <linearGradient id="sl1" x1="0" y1="0" x2="72" y2="72" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#3A82D4"/>
+          <stop offset="100%" stop-color="#5BAAFF"/>
+        </linearGradient>
+      </defs>
+      <circle cx="17" cy="18" r="11" fill="url(#sl1)"/>
+      <circle cx="55" cy="18" r="11" fill="url(#sl1)"/>
+      <circle cx="17" cy="18" r="6" fill="white" opacity="0.15"/>
+      <circle cx="55" cy="18" r="6" fill="white" opacity="0.15"/>
+      <ellipse cx="36" cy="44" rx="28" ry="26" fill="url(#sl1)"/>
+      <circle cx="26" cy="40" r="5" fill="white" opacity="0.95"/>
+      <circle cx="46" cy="40" r="5" fill="white" opacity="0.95"/>
+      <circle cx="26" cy="40" r="2.5" fill="#1A3A6B"/>
+      <circle cx="46" cy="40" r="2.5" fill="#1A3A6B"/>
+      <circle cx="27.5" cy="38.5" r="1" fill="white" opacity="0.8"/>
+      <circle cx="47.5" cy="38.5" r="1" fill="white" opacity="0.8"/>
+      <ellipse cx="36" cy="51" rx="5.5" ry="4" fill="white" opacity="0.6"/>
+    </svg>
+    <div class="name">tutelo<span class="ai">.ai</span></div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Principale</div>
+    <a class="nav-item" routerLink="/dashboard" routerLinkActive="active">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+      </svg>
+      Centro di Controllo
+      <span class="nav-badge">12</span>
+    </a>
+    <a class="nav-item">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+      </svg>
+      Tutte le Pratiche
+      <span class="nav-badge muted">84</span>
+    </a>
+    <a class="nav-item">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      Sinistri
+      <span class="nav-badge red">3</span>
+    </a>
+    <a class="nav-item" routerLink="/agenti" routerLinkActive="active">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2v-4M9 21H5a2 2 0 0 1-2-2v-4m0 0h18"/>
+      </svg>
+      Agenti AI
+      <span class="nav-badge muted">4</span>
+    </a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Pratiche</div>
+    <a class="nav-item">
+      <span class="color-dot" style="background:var(--tag-preventivo)"></span>
+      Preventivi
+    </a>
+    <a class="nav-item">
+      <span class="color-dot" style="background:var(--tag-rinnovo)"></span>
+      Rinnovi
+    </a>
+    <a class="nav-item">
+      <span class="color-dot" style="background:var(--tag-richiesta)"></span>
+      Richieste
+    </a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Canali</div>
+    <a class="nav-item">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+        <polyline points="22,6 12,13 2,6"/>
+      </svg>
+      Email
+    </a>
+    <a class="nav-item">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      WhatsApp
+    </a>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="avatar">MP</div>
+      <div class="user-info">
+        <div class="user-name">Marco Pellegrini</div>
+        <div class="user-role">Agente Senior</div>
+      </div>
+    </div>
+  </div>
+</aside>

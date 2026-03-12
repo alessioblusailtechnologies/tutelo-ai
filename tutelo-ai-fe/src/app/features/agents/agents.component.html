@@ -1,0 +1,44 @@
+<app-topbar
+  title="Agenti AI"
+  subtitle="Automazioni intelligenti che lavorano per te"
+  ctaLabel="+ Nuovo Agente"
+  (ctaClick)="openModal()"
+/>
+<div class="content">
+  <!-- Hero -->
+  <div class="agenti-hero">
+    <div class="agenti-hero-text">
+      <div class="agenti-hero-title">Agenti AI</div>
+      <div class="agenti-hero-desc">Crea agenti autonomi che lavorano per te: cercano, filtrano, inviano comunicazioni e aprono pratiche — in automatico, seguendo le tue istruzioni.</div>
+    </div>
+    <button class="agenti-hero-btn" (click)="openModal()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Nuovo Agente
+    </button>
+  </div>
+
+  <!-- Grid -->
+  <div class="agenti-grid">
+    @for (agent of agents(); track agent.id) {
+      <app-agent-card [agent]="agent" />
+    }
+    <!-- New card -->
+    <div class="agent-card new-card" (click)="openModal()">
+      <div class="new-card-inner">
+        <div class="new-card-plus">+</div>
+        <div class="new-card-label">Crea nuovo agente</div>
+        <div class="new-card-sub">Descrivi cosa deve fare in linguaggio naturale</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Log -->
+  <app-agent-log />
+</div>
+
+@if (showModal()) {
+  <app-create-agent-modal (close)="closeModal()" />
+}

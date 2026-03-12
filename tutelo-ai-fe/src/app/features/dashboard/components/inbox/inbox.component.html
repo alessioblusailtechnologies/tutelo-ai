@@ -1,0 +1,127 @@
+<div class="inbox-split">
+  <!-- List -->
+  <div class="inbox-list-col">
+    <div class="inbox-list-header">
+      <div class="inbox-list-title">Messaggi</div>
+      <span class="ai-mini-badge" style="margin-left:auto">
+        <svg width="7" height="7" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+        </svg>
+        AI on
+      </span>
+    </div>
+    <div class="filter-tabs">
+      @for (tab of filterTabs(); track tab.value) {
+        <button
+          class="filter-tab"
+          [class.active]="tab.active"
+          (click)="setActiveFilter(tab.value)"
+        >
+          {{ tab.label }}
+        </button>
+      }
+    </div>
+    <div class="msg-list">
+      @for (msg of messages(); track msg.id) {
+        <div
+          class="msg-item"
+          [class.selected]="selectedMessage()?.id === msg.id"
+          [class.unread]="msg.unread"
+          (click)="selectMessage(msg.id)"
+        >
+          <div class="msg-top-row">
+            <div class="msg-source" [class.email]="msg.source === 'email'" [class.wa]="msg.source === 'whatsapp'">
+              {{ msg.source === 'email' ? '📧' : '💬' }}
+            </div>
+            <div class="msg-from">{{ msg.from }}</div>
+            <div class="msg-time">{{ msg.time }}</div>
+          </div>
+          <div class="msg-subject">{{ msg.subject }}</div>
+          <div class="msg-tag-row">
+            <span class="pratica-tag" [class]="msg.tag">{{ msg.tagLabel }}</span>
+            @if (msg.priority) {
+              <span class="priority-label" [class]="msg.priority">{{ msg.priorityLabel }}</span>
+            }
+            @if (msg.aiBadge) {
+              <span class="ai-mini-badge">{{ msg.aiBadge }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Preview -->
+  <div class="inbox-preview-col">
+    @if (selectedMessage(); as msg) {
+      <div class="preview-topbar">
+        <div class="preview-from-block">
+          <div class="preview-from">{{ msg.from }}</div>
+          <div class="preview-meta">
+            @if (msg.email) {
+              <span>📧 {{ msg.email }}</span>
+            }
+            <span>Oggi · {{ msg.time }}</span>
+            @if (msg.priority === 'high') {
+              <span class="urgent-label">● Urgente</span>
+            }
+          </div>
+        </div>
+        <div class="preview-actions-top">
+          <button class="btn btn-ghost btn-sm">Rispondi</button>
+          <button class="btn btn-ghost btn-sm">Archivia</button>
+        </div>
+      </div>
+      <div class="preview-body">
+        @if (msg.body) {
+          <div class="msg-bubble">
+            <div class="msg-bubble-label">Messaggio originale</div>
+            <div [innerHTML]="msg.body"></div>
+          </div>
+        }
+        @if (msg.aiAnalysis; as ai) {
+          <div class="ai-analysis">
+            <div class="ai-analysis-header">
+              <div class="ai-analysis-header-icon">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="white">
+                  <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+                </svg>
+              </div>
+              <div class="ai-analysis-title">Analisi AI</div>
+              <div class="ai-analysis-sub">Generata in {{ ai.generationTime }} · Confidenza {{ ai.confidence }}</div>
+            </div>
+            <div class="ai-analysis-body">
+              <div class="ai-summary" [innerHTML]="ai.summary"></div>
+              <div class="ai-entities">
+                @for (entity of ai.entities; track entity.label) {
+                  <div class="ai-entity">
+                    <div class="ai-entity-label">{{ entity.label }}</div>
+                    <div class="ai-entity-value" [style.color]="entity.color || null">
+                      @if (entity.label === 'Tipo') { ⚠ }
+                      {{ entity.value }}
+                    </div>
+                  </div>
+                }
+              </div>
+              <div class="ai-proposed-label">Azioni proposte</div>
+              @for (action of ai.actions; track action.title) {
+                <div class="action-item" [class.primary-action]="action.isPrimary">
+                  <div class="action-icon" [style.background]="action.iconBg">
+                    <span>{{ action.icon }}</span>
+                  </div>
+                  <div class="action-content">
+                    <div class="action-title">{{ action.title }}</div>
+                    <div class="action-desc">{{ action.description }}</div>
+                  </div>
+                  <div class="action-right">
+                    <button class="action-btn" [class]="action.buttonType">{{ action.buttonLabel }}</button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

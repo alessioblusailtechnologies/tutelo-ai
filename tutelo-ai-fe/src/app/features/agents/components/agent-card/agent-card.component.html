@@ -1,0 +1,31 @@
+<div class="agent-card" [class.active-agent]="agent().isActive">
+  <div class="agent-card-header">
+    <div class="agent-top-row">
+      <div class="agent-icon" [style.background]="agent().iconBg">{{ agent().icon }}</div>
+      <div>
+        <div class="agent-name">{{ agent().name }}</div>
+        <div class="agent-trigger">{{ agent().trigger }}</div>
+      </div>
+      <div class="agent-status-dot" [class]="agent().status"></div>
+    </div>
+    <div class="agent-desc">{{ agent().description }}</div>
+  </div>
+  <div class="agent-card-steps">
+    @for (step of agent().steps; track step.number) {
+      <div class="agent-step">
+        <div class="step-num">{{ step.number }}</div>
+        <div class="step-text">{{ step.text }}</div>
+        <span class="step-tag" [class]="step.tagType">{{ step.tag }}</span>
+      </div>
+    }
+  </div>
+  <div class="agent-card-footer">
+    <div class="agent-last-run">Ultima: <strong>{{ agent().lastRun }}</strong> · {{ agent().lastRunDetail }}</div>
+    <button class="agent-footer-btn edit">Modifica</button>
+    @if (agent().status === 'running') {
+      <button class="agent-footer-btn pause">⏸ Pausa</button>
+    } @else {
+      <button class="agent-footer-btn run">▶ Riattiva</button>
+    }
+  </div>
+</div>
