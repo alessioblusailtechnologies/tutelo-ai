@@ -66,21 +66,16 @@
           }
         </div>
       </div>
-      <div class="form-group">
-        <label class="form-label">Passi generati dall'AI</label>
-        <div class="preview-steps">
-          @for (step of modalSteps(); track step; let i = $index) {
-            <div class="preview-step-item">
-              <div class="preview-step-num">{{ i + 1 }}</div>
-              {{ step }}
-            </div>
-          }
-        </div>
-      </div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" (click)="close.emit()">Annulla</button>
-      <button class="btn btn-primary" (click)="createAgent()">✓ Crea Agente</button>
+      <button class="btn btn-primary" (click)="createAgent()" [disabled]="saving() || !agentName.trim()">
+        @if (saving()) {
+          Creazione...
+        } @else {
+          ✓ Crea Agente
+        }
+      </button>
     </div>
   </div>
 </div>

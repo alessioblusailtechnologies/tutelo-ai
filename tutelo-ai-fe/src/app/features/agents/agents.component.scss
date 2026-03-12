@@ -131,3 +131,51 @@
   font-size: 11px;
   color: var(--text-faint);
 }
+
+.agenti-empty {
+  background: white;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 48px 32px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.agenti-empty-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.agenti-empty-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+}
+
+.agenti-empty-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  max-width: 360px;
+  margin-bottom: 20px;
+}
+
+.agenti-empty-btn {
+  padding: 10px 20px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}

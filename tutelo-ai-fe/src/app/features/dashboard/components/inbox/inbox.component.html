@@ -22,31 +22,39 @@
       }
     </div>
     <div class="msg-list">
-      @for (msg of messages(); track msg.id) {
-        <div
-          class="msg-item"
-          [class.selected]="selectedMessage()?.id === msg.id"
-          [class.unread]="msg.unread"
-          (click)="selectMessage(msg.id)"
-        >
-          <div class="msg-top-row">
-            <div class="msg-source" [class.email]="msg.source === 'email'" [class.wa]="msg.source === 'whatsapp'">
-              {{ msg.source === 'email' ? '📧' : '💬' }}
-            </div>
-            <div class="msg-from">{{ msg.from }}</div>
-            <div class="msg-time">{{ msg.time }}</div>
-          </div>
-          <div class="msg-subject">{{ msg.subject }}</div>
-          <div class="msg-tag-row">
-            <span class="pratica-tag" [class]="msg.tag">{{ msg.tagLabel }}</span>
-            @if (msg.priority) {
-              <span class="priority-label" [class]="msg.priority">{{ msg.priorityLabel }}</span>
-            }
-            @if (msg.aiBadge) {
-              <span class="ai-mini-badge">{{ msg.aiBadge }}</span>
-            }
-          </div>
+      @if (messages().length === 0 && !loading()) {
+        <div class="msg-list-empty">
+          <div class="msg-list-empty-icon">📭</div>
+          <div class="msg-list-empty-title">Nessun messaggio</div>
+          <div class="msg-list-empty-desc">I messaggi in arrivo da email e WhatsApp appariranno qui.</div>
         </div>
+      } @else {
+        @for (msg of messages(); track msg.id) {
+          <div
+            class="msg-item"
+            [class.selected]="selectedMessage()?.id === msg.id"
+            [class.unread]="!msg.is_read"
+            (click)="selectMessage(msg.id)"
+          >
+            <div class="msg-top-row">
+              <div class="msg-source" [class.email]="msg.source === 'email'" [class.wa]="msg.source === 'whatsapp'">
+                {{ msg.source === 'email' ? '📧' : '💬' }}
+              </div>
+              <div class="msg-from">{{ msg.from_name }}</div>
+              <div class="msg-time">{{ formatTime(msg.received_at) }}</div>
+            </div>
+            <div class="msg-subject">{{ msg.subject }}</div>
+            <div class="msg-tag-row">
+              <span class="pratica-tag" [class]="msg.tag">{{ msg.tag_label }}</span>
+              @if (msg.priority) {
+                <span class="priority-label" [class]="msg.priority">{{ msg.priority_label }}</span>
+              }
+              @if (msg.ai_badge) {
+                <span class="ai-mini-badge">{{ msg.ai_badge }}</span>
+              }
+            </div>
+          </div>
+        }
       }
     </div>
   </div>
@@ -56,12 +64,15 @@
     @if (selectedMessage(); as msg) {
       <div class="preview-topbar">
         <div class="preview-from-block">
-          <div class="preview-from">{{ msg.from }}</div>
+          <div class="preview-from">{{ msg.from_name }}</div>
           <div class="preview-meta">
-            @if (msg.email) {
-              <span>📧 {{ msg.email }}</span>
+            @if (msg.from_email) {
+              <span>📧 {{ msg.from_email }}</span>
             }
-            <span>Oggi · {{ msg.time }}</span>
+            @if (msg.from_phone) {
+              <span>💬 {{ msg.from_phone }}</span>
+            }
+            <span>{{ formatTime(msg.received_at) }}</span>
             @if (msg.priority === 'high') {
               <span class="urgent-label">● Urgente</span>
             }
@@ -79,7 +90,7 @@
             <div [innerHTML]="msg.body"></div>
           </div>
         }
-        @if (msg.aiAnalysis; as ai) {
+        @if (selectedAnalysis(); as ai) {
           <div class="ai-analysis">
             <div class="ai-analysis-header">
               <div class="ai-analysis-header-icon">
@@ -88,7 +99,7 @@
                 </svg>
               </div>
               <div class="ai-analysis-title">Analisi AI</div>
-              <div class="ai-analysis-sub">Generata in {{ ai.generationTime }} · Confidenza {{ ai.confidence }}</div>
+              <div class="ai-analysis-sub">Generata in {{ ai.generation_time_ms }}ms · Confidenza {{ ai.confidence }}</div>
             </div>
             <div class="ai-analysis-body">
               <div class="ai-summary" [innerHTML]="ai.summary"></div>
@@ -103,24 +114,32 @@
                   </div>
                 }
               </div>
-              <div class="ai-proposed-label">Azioni proposte</div>
-              @for (action of ai.actions; track action.title) {
-                <div class="action-item" [class.primary-action]="action.isPrimary">
-                  <div class="action-icon" [style.background]="action.iconBg">
-                    <span>{{ action.icon }}</span>
+              @if (ai.proposed_actions.length > 0) {
+                <div class="ai-proposed-label">Azioni proposte</div>
+                @for (action of ai.proposed_actions; track action.title) {
+                  <div class="action-item">
+                    <div class="action-icon" [style.background]="action.icon_bg">
+                      <span>{{ action.icon }}</span>
+                    </div>
+                    <div class="action-content">
+                      <div class="action-title">{{ action.title }}</div>
+                      <div class="action-desc">{{ action.description }}</div>
+                    </div>
+                    <div class="action-right">
+                      <button class="action-btn blue">{{ action.action_type }}</button>
+                    </div>
                   </div>
-                  <div class="action-content">
-                    <div class="action-title">{{ action.title }}</div>
-                    <div class="action-desc">{{ action.description }}</div>
-                  </div>
-                  <div class="action-right">
-                    <button class="action-btn" [class]="action.buttonType">{{ action.buttonLabel }}</button>
-                  </div>
-                </div>
+                }
               }
             </div>
           </div>
         }
+      </div>
+    } @else {
+      <div class="preview-empty">
+        <div class="preview-empty-icon">📨</div>
+        <div class="preview-empty-title">Seleziona un messaggio</div>
+        <div class="preview-empty-desc">Clicca su un messaggio dalla lista per vederne il contenuto e l'analisi AI.</div>
       </div>
     }
   </div>

@@ -7,32 +7,43 @@
     </div>
     <div class="ai-actions-header-title">Azioni suggerite dall'AI</div>
     <div class="ai-actions-header-sub">basate sui messaggi ricevuti oggi</div>
-    <div class="ai-actions-header-badge">
-      <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-      </svg>
-      4 nuove
-    </div>
-  </div>
-  <div class="ai-actions-list">
-    @for (action of actions(); track action.title) {
-      <div class="ai-action-card" [class]="action.type">
-        <div class="ai-action-type">
-          <div class="ai-action-dot" [class]="action.type"></div>
-          <div class="ai-action-label">{{ action.typeLabel }}</div>
-        </div>
-        <div class="ai-action-title">{{ action.title }}</div>
-        <div class="ai-action-desc">{{ action.description }}</div>
-        <div class="ai-action-ctas">
-          <button
-            class="ai-cta primary"
-            [style.background]="action.primaryButton.color || null"
-          >
-            {{ action.primaryButton.label }}
-          </button>
-          <button class="ai-cta ghost">{{ action.secondaryButton.label }}</button>
-        </div>
+    @if (actions().length > 0) {
+      <div class="ai-actions-header-badge">
+        <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
+        </svg>
+        {{ actions().length }} nuove
       </div>
     }
   </div>
+  @if (actions().length === 0 && !loading()) {
+    <div class="ai-actions-empty">
+      <div class="ai-actions-empty-icon">✨</div>
+      <div class="ai-actions-empty-title">Nessuna azione suggerita</div>
+      <div class="ai-actions-empty-desc">Quando l'AI rileverà nuove azioni dai tuoi messaggi, appariranno qui.</div>
+    </div>
+  } @else {
+    <div class="ai-actions-list">
+      @for (action of actions(); track action.id) {
+        <div class="ai-action-card" [class]="action.type">
+          <div class="ai-action-type">
+            <div class="ai-action-dot" [class]="action.type"></div>
+            <div class="ai-action-label">{{ action.type_label }}</div>
+          </div>
+          <div class="ai-action-title">{{ action.title }}</div>
+          <div class="ai-action-desc">{{ action.description }}</div>
+          <div class="ai-action-ctas">
+            <button
+              class="ai-cta primary"
+              [style.background]="action.primary_button_color || null"
+              (click)="onComplete(action.id)"
+            >
+              {{ action.primary_button_label }}
+            </button>
+            <button class="ai-cta ghost" (click)="onDismiss(action.id)">{{ action.secondary_button_label }}</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
 </div>

@@ -1,0 +1,86 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg width="48" height="48" viewBox="0 0 72 72" fill="none">
+        <defs>
+          <linearGradient id="lg1" x1="0" y1="0" x2="72" y2="72" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#3A82D4"/>
+            <stop offset="100%" stop-color="#5BAAFF"/>
+          </linearGradient>
+        </defs>
+        <circle cx="17" cy="18" r="11" fill="url(#lg1)"/>
+        <circle cx="55" cy="18" r="11" fill="url(#lg1)"/>
+        <circle cx="17" cy="18" r="6" fill="white" opacity="0.15"/>
+        <circle cx="55" cy="18" r="6" fill="white" opacity="0.15"/>
+        <ellipse cx="36" cy="44" rx="28" ry="26" fill="url(#lg1)"/>
+        <circle cx="26" cy="40" r="5" fill="white" opacity="0.95"/>
+        <circle cx="46" cy="40" r="5" fill="white" opacity="0.95"/>
+        <circle cx="26" cy="40" r="2.5" fill="#1A3A6B"/>
+        <circle cx="46" cy="40" r="2.5" fill="#1A3A6B"/>
+        <circle cx="27.5" cy="38.5" r="1" fill="white" opacity="0.8"/>
+        <circle cx="47.5" cy="38.5" r="1" fill="white" opacity="0.8"/>
+        <ellipse cx="36" cy="51" rx="5.5" ry="4" fill="white" opacity="0.6"/>
+      </svg>
+      <div class="login-brand">tutelo<span class="ai">.ai</span></div>
+    </div>
+
+    <h1 class="login-title">{{ isRegister() ? 'Crea un account' : 'Accedi al tuo account' }}</h1>
+    <p class="login-subtitle">{{ isRegister() ? 'Inserisci i tuoi dati per registrarti' : 'Inserisci le tue credenziali per continuare' }}</p>
+
+    @if (error()) {
+      <div class="login-error">{{ error() }}</div>
+    }
+
+    <form (ngSubmit)="onSubmit()" class="login-form">
+      @if (isRegister()) {
+        <div class="form-group">
+          <label class="form-label">Nome completo</label>
+          <input
+            class="form-input"
+            type="text"
+            placeholder="es. Marco Pellegrini"
+            [(ngModel)]="fullName"
+            name="fullName"
+          >
+        </div>
+      }
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input
+          class="form-input"
+          type="email"
+          placeholder="email@esempio.com"
+          [(ngModel)]="email"
+          name="email"
+          required
+        >
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input
+          class="form-input"
+          type="password"
+          placeholder="La tua password"
+          [(ngModel)]="password"
+          name="password"
+          required
+        >
+      </div>
+      <button class="login-btn" type="submit" [disabled]="loading()">
+        @if (loading()) {
+          Caricamento...
+        } @else {
+          {{ isRegister() ? 'Registrati' : 'Accedi' }}
+        }
+      </button>
+    </form>
+
+    <div class="login-switch">
+      @if (isRegister()) {
+        Hai già un account? <button class="link-btn" (click)="toggleMode()">Accedi</button>
+      } @else {
+        Non hai un account? <button class="link-btn" (click)="toggleMode()">Registrati</button>
+      }
+    </div>
+  </div>
+</div>

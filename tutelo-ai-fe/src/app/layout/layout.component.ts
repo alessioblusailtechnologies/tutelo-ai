@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { SidebarComponent } from './sidebar/sidebar.component';
+import { AuthService } from '../core/services/auth.service';
 
 @Component({
   selector: 'app-layout',
@@ -26,5 +27,10 @@ import { SidebarComponent } from './sidebar/sidebar.component';
     }
   `]
 })
-export class LayoutComponent {
+export class LayoutComponent implements OnInit {
+  private readonly authService = inject(AuthService);
+
+  ngOnInit(): void {
+    this.authService.loadProfile();
+  }
 }

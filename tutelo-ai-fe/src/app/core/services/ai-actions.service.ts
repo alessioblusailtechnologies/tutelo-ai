@@ -1,40 +1,40 @@
-import { Injectable, signal } from '@angular/core';
-import { AiAction } from '../models/ai-action.model';
+import { Injectable, inject, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
+import type { AiAction } from '../models/ai-action.model';
+import type { ApiResponse } from '../models/auth.model';
 
 @Injectable({ providedIn: 'root' })
 export class AiActionsService {
-  readonly actions = signal<AiAction[]>([
-    {
-      type: 'urgent',
-      typeLabel: 'Sinistro · Urgente',
-      title: 'Aprire sinistro per Santini',
-      description: 'WhatsApp alle 08:52 — incidente in Via Roma. Targa e polizza già identificate.',
-      primaryButton: { label: '⚡ Apri Sinistro', color: '#C0392B' },
-      secondaryButton: { label: 'Vedi msg' }
-    },
-    {
-      type: 'info',
-      typeLabel: 'Preventivo · Nuovo',
-      title: 'Creare preventivo per Marchetti',
-      description: 'Email con richiesta preventivo auto (Fiat 500, 2019). Dati cliente in archivio.',
-      primaryButton: { label: 'Crea Preventivo' },
-      secondaryButton: { label: 'Ignora' }
-    },
-    {
-      type: 'warn',
-      typeLabel: 'Rinnovo · Scadenza',
-      title: 'Confermare rinnovo Ferrero',
-      description: 'Luca Ferrero ha confermato via email. Polizza in scadenza tra 8 giorni.',
-      primaryButton: { label: 'Avvia Rinnovo', color: '#E08A00' },
-      secondaryButton: { label: 'Posticipa' }
-    },
-    {
-      type: 'soft',
-      typeLabel: 'Richiesta · Follow-up',
-      title: 'Rispondere a Colombo (3gg)',
-      description: 'Anna Colombo attende risposta da 3 giorni. Bozza AI pronta all\'invio.',
-      primaryButton: { label: 'Invia bozza AI', color: '#1A7A4A' },
-      secondaryButton: { label: 'Modifica' }
+  private readonly http = inject(HttpClient);
+
+  readonly actions = signal<AiAction[]>([]);
+  readonly loading = signal(false);
+
+  async loadActions(): Promise<void> {
+    this.loading.set(true);
+    try {
+      const res = await firstValueFrom(
+        this.http.get<ApiResponse<AiAction[]>>(`${environment.apiUrl}/ai-actions`)
+      );
+      this.actions.set(res.data);
+    } finally {
+      this.loading.set(false);
     }
-  ]);
+  }
+
+  async dismiss(id: string): Promise<void> {
+    await firstValueFrom(
+      this.http.post(`${environment.apiUrl}/ai-actions/${id}/dismiss`, {})
+    );
+    this.actions.update(actions => actions.filter(a => a.id !== id));
+  }
+
+  async complete(id: string): Promise<void> {
+    await firstValueFrom(
+      this.http.post(`${environment.apiUrl}/ai-actions/${id}/complete`, {})
+    );
+    this.actions.update(actions => actions.filter(a => a.id !== id));
+  }
 }

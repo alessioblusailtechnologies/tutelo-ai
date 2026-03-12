@@ -1,0 +1,140 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  padding: 24px;
+}
+
+.login-card {
+  background: white;
+  border-radius: 16px;
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--card-shadow);
+}
+
+.login-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.login-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--navy);
+
+  .ai {
+    color: var(--blue);
+  }
+}
+
+.login-title {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--navy);
+  margin: 0 0 6px;
+}
+
+.login-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 24px;
+}
+
+.login-error {
+  background: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .form-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+
+  .form-input {
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color 0.15s;
+
+    &:focus {
+      outline: none;
+      border-color: var(--blue);
+    }
+
+    &::placeholder {
+      color: #B0B8C9;
+    }
+  }
+}
+
+.login-btn {
+  margin-top: 8px;
+  padding: 12px;
+  background: var(--blue);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: opacity 0.15s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.login-switch {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--blue);
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  padding: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}

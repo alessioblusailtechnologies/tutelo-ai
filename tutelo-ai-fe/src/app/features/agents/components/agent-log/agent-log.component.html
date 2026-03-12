@@ -6,14 +6,20 @@
     <div class="agent-log-title">Log esecuzioni recenti</div>
     <span class="log-time-range">Ultime 24 ore</span>
   </div>
-  @for (entry of logEntries(); track entry.time) {
-    <div class="log-item">
-      <div class="log-icon" [style.background]="entry.iconBg">{{ entry.icon }}</div>
-      <div class="log-text">
-        <strong>{{ entry.agentName }}</strong> — <span>{{ entry.detail }}</span>
-      </div>
-      <div class="log-time">{{ entry.time }}</div>
-      <span class="log-result" [class]="entry.result">{{ entry.resultLabel }}</span>
+  @if (logEntries().length === 0) {
+    <div class="log-empty">
+      <div class="log-empty-text">Nessuna esecuzione registrata. I log appariranno qui quando gli agenti eseguiranno le loro azioni.</div>
     </div>
+  } @else {
+    @for (entry of logEntries(); track entry.id) {
+      <div class="log-item">
+        <div class="log-icon" [style.background]="entry.icon_bg">{{ entry.icon }}</div>
+        <div class="log-text">
+          <strong>{{ entry.agent_name }}</strong> — <span>{{ entry.detail }}</span>
+        </div>
+        <div class="log-time">{{ entry.executed_at | date:'dd MMM HH:mm' }}</div>
+        <span class="log-result" [class]="entry.result">{{ entry.result_label }}</span>
+      </div>
+    }
   }
 </div>

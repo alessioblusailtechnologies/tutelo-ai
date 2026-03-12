@@ -21,19 +21,28 @@
   </div>
 
   <!-- Grid -->
-  <div class="agenti-grid">
-    @for (agent of agents(); track agent.id) {
-      <app-agent-card [agent]="agent" />
-    }
-    <!-- New card -->
-    <div class="agent-card new-card" (click)="openModal()">
-      <div class="new-card-inner">
-        <div class="new-card-plus">+</div>
-        <div class="new-card-label">Crea nuovo agente</div>
-        <div class="new-card-sub">Descrivi cosa deve fare in linguaggio naturale</div>
+  @if (agents().length === 0) {
+    <div class="agenti-empty">
+      <div class="agenti-empty-icon">🤖</div>
+      <div class="agenti-empty-title">Nessun agente configurato</div>
+      <div class="agenti-empty-desc">Crea il tuo primo agente AI per automatizzare le operazioni della tua agenzia.</div>
+      <button class="agenti-empty-btn" (click)="openModal()">+ Crea il primo agente</button>
+    </div>
+  } @else {
+    <div class="agenti-grid">
+      @for (agent of agents(); track agent.id) {
+        <app-agent-card [agent]="agent" />
+      }
+      <!-- New card -->
+      <div class="agent-card new-card" (click)="openModal()">
+        <div class="new-card-inner">
+          <div class="new-card-plus">+</div>
+          <div class="new-card-label">Crea nuovo agente</div>
+          <div class="new-card-sub">Descrivi cosa deve fare in linguaggio naturale</div>
+        </div>
       </div>
     </div>
-  </div>
+  }
 
   <!-- Log -->
   <app-agent-log />

@@ -1,9 +1,11 @@
 import { Component, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { AgentsService } from '../../../../core/services/agents.service';
 
 @Component({
   selector: 'app-agent-log',
   standalone: true,
+  imports: [DatePipe],
   templateUrl: './agent-log.component.html',
   styleUrl: './agent-log.component.scss'
 })

@@ -12,7 +12,7 @@ import { AgentsService } from '../../../../core/services/agents.service';
 export class CreateAgentModalComponent {
   private readonly agentsService = inject(AgentsService);
   readonly close = output<void>();
-  readonly modalSteps = this.agentsService.modalSteps;
+  readonly saving = signal(false);
 
   agentName = '';
   instructions = '';
@@ -47,13 +47,26 @@ export class CreateAgentModalComponent {
     }
   }
 
-  createAgent(): void {
-    this.agentsService.createAgent({
-      name: this.agentName,
-      instructions: this.instructions,
-      trigger: this.selectedTrigger(),
-      channels: this.channels().filter(c => c.selected).map(c => c.label)
-    });
-    this.close.emit();
+  async createAgent(): Promise<void> {
+    if (!this.agentName.trim()) return;
+    this.saving.set(true);
+    try {
+      const triggerLabels: Record<string, string> = {
+        scheduled: '⏰ Schedulato',
+        message: '⚡ Ad ogni messaggio',
+        manual: '▶ Manuale'
+      };
+      await this.agentsService.createAgent({
+        name: this.agentName,
+        description: this.instructions.slice(0, 200),
+        trigger_type: this.selectedTrigger(),
+        trigger_label: triggerLabels[this.selectedTrigger()],
+        instructions: this.instructions,
+        output_channels: this.channels().filter(c => c.selected).map(c => c.label)
+      });
+      this.close.emit();
+    } finally {
+      this.saving.set(false);
+    }
   }
 }

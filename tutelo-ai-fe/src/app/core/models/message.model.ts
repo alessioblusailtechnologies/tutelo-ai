@@ -1,26 +1,31 @@
 export interface Message {
-  id: number;
-  from: string;
-  email?: string;
+  id: string;
+  from_name: string;
+  from_email: string | null;
+  from_phone: string | null;
   subject: string;
+  body: string;
   source: 'email' | 'whatsapp';
-  time: string;
   tag: 'sinistro' | 'preventivo' | 'rinnovo' | 'richiesta' | 'nuovo';
-  tagLabel: string;
-  unread: boolean;
-  priority?: 'high' | 'med';
-  priorityLabel?: string;
-  aiBadge?: string;
-  body?: string;
-  aiAnalysis?: AiAnalysis;
+  tag_label: string;
+  is_read: boolean;
+  priority: 'high' | 'med' | null;
+  priority_label: string | null;
+  ai_badge: string | null;
+  received_at: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface AiAnalysis {
+  id: string;
+  message_id: string;
   summary: string;
   confidence: string;
-  generationTime: string;
+  generation_time_ms: number;
   entities: AiEntity[];
-  actions: AiProposedAction[];
+  proposed_actions: AiProposedAction[];
+  created_at: string;
 }
 
 export interface AiEntity {
@@ -31,10 +36,8 @@ export interface AiEntity {
 
 export interface AiProposedAction {
   icon: string;
-  iconBg: string;
+  icon_bg: string;
   title: string;
   description: string;
-  buttonLabel: string;
-  buttonType: 'blue' | 'ghost';
-  isPrimary?: boolean;
+  action_type: string;
 }
