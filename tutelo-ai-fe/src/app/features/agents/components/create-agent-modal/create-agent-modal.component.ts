@@ -1,16 +1,22 @@
 import { Component, inject, output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { HugeiconsIconComponent } from '@hugeicons/angular';
+import { AiBrain01Icon, InformationCircleIcon, Cancel01Icon, Tick01Icon } from '@hugeicons/core-free-icons';
 import { AgentsService } from '../../../../core/services/agents.service';
 
 @Component({
   selector: 'app-create-agent-modal',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, HugeiconsIconComponent],
   templateUrl: './create-agent-modal.component.html',
   styleUrl: './create-agent-modal.component.scss'
 })
 export class CreateAgentModalComponent {
   private readonly agentsService = inject(AgentsService);
+  readonly AiBrain01Icon = AiBrain01Icon;
+  readonly InformationCircleIcon = InformationCircleIcon;
+  readonly Cancel01Icon = Cancel01Icon;
+  readonly Tick01Icon = Tick01Icon;
   readonly close = output<void>();
   readonly saving = signal(false);
 

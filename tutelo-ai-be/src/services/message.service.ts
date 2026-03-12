@@ -39,12 +39,20 @@ export const messageService = {
 1. Un riassunto conciso
 2. Le entità chiave (cliente, polizza, targa, data, luogo, tipo pratica)
 3. Le azioni proposte per l'agente assicurativo
+4. La classificazione del messaggio: sinistro, preventivo, rinnovo, richiesta
+5. La priorità: "high" (urgente), "med" (media) oppure null (normale)
+6. Un breve badge AI di 1-2 parole (es. "Sinistro auto", "Preventivo vita", "Rinnovo urgente")
 
 Rispondi in formato JSON con questa struttura:
 {
   "summary": "riassunto del messaggio con parti importanti in **bold**",
   "entities": [{"label": "Nome campo", "value": "valore"}],
-  "proposed_actions": [{"icon": "emoji", "icon_bg": "colore hex", "title": "titolo azione", "description": "descrizione", "action_type": "tipo"}]
+  "proposed_actions": [{"icon": "emoji", "icon_bg": "colore hex", "title": "titolo azione", "description": "descrizione", "action_type": "tipo"}],
+  "tag": "sinistro|preventivo|rinnovo|richiesta",
+  "tag_label": "Sinistro|Preventivo|Rinnovo|Richiesta",
+  "priority": "high|med|null",
+  "priority_label": "Urgente|Media priorità|null",
+  "ai_badge": "breve badge"
 }`,
       userPrompt: `Da: ${message.from_name}\nOggetto: ${message.subject}\n\n${message.body}`,
       model: 'gpt-4o-mini',
@@ -60,6 +68,25 @@ Rispondi in formato JSON con questa struttura:
         entities: [],
         proposed_actions: [],
       };
+    }
+
+    // Update message classification
+    const validTags = ['sinistro', 'preventivo', 'rinnovo', 'richiesta'];
+    const tag = validTags.includes(parsed.tag) ? parsed.tag : undefined;
+    const updateFields: Record<string, any> = {};
+    if (tag) {
+      updateFields.tag = tag;
+      updateFields.tag_label = parsed.tag_label || tag.charAt(0).toUpperCase() + tag.slice(1);
+    }
+    if (parsed.priority === 'high' || parsed.priority === 'med') {
+      updateFields.priority = parsed.priority;
+      updateFields.priority_label = parsed.priority_label || (parsed.priority === 'high' ? 'Urgente' : 'Media priorità');
+    }
+    if (parsed.ai_badge) {
+      updateFields.ai_badge = parsed.ai_badge;
+    }
+    if (Object.keys(updateFields).length > 0) {
+      await messageRepository.update(messageId, userId, updateFields as any);
     }
 
     return aiAnalysisRepository.create({

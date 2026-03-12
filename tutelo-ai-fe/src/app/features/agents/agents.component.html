@@ -5,25 +5,10 @@
   (ctaClick)="openModal()"
 />
 <div class="content">
-  <!-- Hero -->
-  <div class="agenti-hero">
-    <div class="agenti-hero-text">
-      <div class="agenti-hero-title">Agenti AI</div>
-      <div class="agenti-hero-desc">Crea agenti autonomi che lavorano per te: cercano, filtrano, inviano comunicazioni e aprono pratiche — in automatico, seguendo le tue istruzioni.</div>
-    </div>
-    <button class="agenti-hero-btn" (click)="openModal()">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19"/>
-        <line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
-      Nuovo Agente
-    </button>
-  </div>
-
   <!-- Grid -->
   @if (agents().length === 0) {
     <div class="agenti-empty">
-      <div class="agenti-empty-icon">🤖</div>
+      <div class="agenti-empty-icon"><hugeicons-icon [icon]="AiBrain01Icon" [size]="36" color="var(--text-muted)" [strokeWidth]="1.5" /></div>
       <div class="agenti-empty-title">Nessun agente configurato</div>
       <div class="agenti-empty-desc">Crea il tuo primo agente AI per automatizzare le operazioni della tua agenzia.</div>
       <button class="agenti-empty-btn" (click)="openModal()">+ Crea il primo agente</button>

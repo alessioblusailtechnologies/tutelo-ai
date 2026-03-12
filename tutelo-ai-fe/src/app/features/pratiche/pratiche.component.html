@@ -1,0 +1,86 @@
+<app-topbar
+  title="Pratiche"
+  subtitle="Gestisci preventivi, sinistri, rinnovi e richieste"
+  ctaLabel=""
+  (ctaClick)="null"
+/>
+<div class="content">
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card" (click)="setFilter('all'); setStatus('all')">
+      <div class="stat-value">{{ counts().all }}</div>
+      <div class="stat-label">Totali</div>
+    </div>
+    <div class="stat-card accent" (click)="setStatus('all'); setFilter('all')">
+      <div class="stat-value">{{ counts().aperte }}</div>
+      <div class="stat-label">Aperte</div>
+    </div>
+    <div class="stat-card" (click)="setFilter('preventivo')">
+      <div class="stat-value">{{ counts().preventivi }}</div>
+      <div class="stat-label">Preventivi</div>
+    </div>
+    <div class="stat-card" (click)="setFilter('sinistro')">
+      <div class="stat-value">{{ counts().sinistri }}</div>
+      <div class="stat-label">Sinistri</div>
+    </div>
+    <div class="stat-card" (click)="setFilter('rinnovo')">
+      <div class="stat-value">{{ counts().rinnovi }}</div>
+      <div class="stat-label">Rinnovi</div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-row">
+    <div class="filter-tabs">
+      <button class="filter-tab" [class.active]="activeFilter() === 'all'" (click)="setFilter('all')">Tutte</button>
+      <button class="filter-tab" [class.active]="activeFilter() === 'preventivo'" (click)="setFilter('preventivo')">Preventivi</button>
+      <button class="filter-tab" [class.active]="activeFilter() === 'sinistro'" (click)="setFilter('sinistro')">Sinistri</button>
+      <button class="filter-tab" [class.active]="activeFilter() === 'rinnovo'" (click)="setFilter('rinnovo')">Rinnovi</button>
+      <button class="filter-tab" [class.active]="activeFilter() === 'richiesta_documenti'" (click)="setFilter('richiesta_documenti')">Richieste</button>
+    </div>
+    <div class="status-filter">
+      <select [value]="activeStatus()" (change)="setStatus($any($event.target).value)">
+        <option value="all">Tutti gli stati</option>
+        <option value="aperta">Aperte</option>
+        <option value="in_lavorazione">In lavorazione</option>
+        <option value="in_attesa">In attesa</option>
+        <option value="completata">Completate</option>
+        <option value="annullata">Annullate</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- List -->
+  @if (filteredPratiche().length === 0 && !loading()) {
+    <div class="empty-state">
+      <div class="empty-icon"><hugeicons-icon [icon]="Folder01Icon" [size]="36" color="var(--text-muted)" [strokeWidth]="1.5" /></div>
+      <div class="empty-title">Nessuna pratica</div>
+      <div class="empty-desc">Le pratiche verranno create automaticamente dalle azioni suggerite dall'AI nel centro di controllo.</div>
+    </div>
+  } @else {
+    <div class="pratiche-list">
+      @for (p of filteredPratiche(); track p.id) {
+        <div class="pratica-row" (click)="openPratica(p.id)">
+          <div class="pratica-icon">{{ typeIcon[p.type] }}</div>
+          <div class="pratica-info">
+            <div class="pratica-title">{{ p.title }}</div>
+            <div class="pratica-meta">
+              <span class="pratica-type-label">{{ typeLabel[p.type] }}</span>
+              <span class="pratica-client">{{ p.client_name }}</span>
+              @if (p.client_email) {
+                <span class="pratica-email">{{ p.client_email }}</span>
+              }
+            </div>
+          </div>
+          <div class="pratica-right">
+            <span class="pratica-status" [class]="statusClass(p.status)">{{ statusLabel[p.status] }}</span>
+            <span class="pratica-priority" [class]="priorityClass(p.priority)">
+              {{ p.priority === 'high' ? '● Alta' : p.priority === 'med' ? '● Media' : '● Bassa' }}
+            </span>
+            <span class="pratica-date">{{ formatDate(p.created_at) }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

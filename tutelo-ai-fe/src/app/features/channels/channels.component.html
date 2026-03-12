@@ -1,0 +1,329 @@
+<app-topbar
+  title="Canali"
+  subtitle="Gestisci le connessioni email e WhatsApp"
+  ctaLabel="+ Nuovo Canale"
+  (ctaClick)="openCreate('email')"
+/>
+<div class="content">
+  @if (successMsg()) {
+    <div class="success-banner">{{ successMsg() }}</div>
+  }
+
+  <!-- Tabs -->
+  <div class="channel-tabs">
+    <button class="channel-tab" [class.active]="activeTab() === 'all'" (click)="setTab('all')">
+      Tutti ({{ channels().length }})
+    </button>
+    <button class="channel-tab" [class.active]="activeTab() === 'email'" (click)="setTab('email')">
+      <hugeicons-icon [icon]="Mail01Icon" [size]="13" color="currentColor" [strokeWidth]="1.5" /> Email ({{ emailCount() }})
+    </button>
+    <button class="channel-tab" [class.active]="activeTab() === 'whatsapp'" (click)="setTab('whatsapp')">
+      <hugeicons-icon [icon]="Chatting01Icon" [size]="13" color="currentColor" [strokeWidth]="1.5" /> WhatsApp ({{ whatsappCount() }})
+    </button>
+  </div>
+
+  <!-- List -->
+  @if (filteredChannels().length === 0 && !loading()) {
+    <div class="channels-empty">
+      <div class="channels-empty-icon"><hugeicons-icon [icon]="PlugSocketIcon" [size]="36" color="var(--text-muted)" [strokeWidth]="1.5" /></div>
+      <div class="channels-empty-title">Nessun canale configurato</div>
+      <div class="channels-empty-desc">Collega il tuo primo canale email o WhatsApp per iniziare a ricevere e inviare messaggi.</div>
+      <div class="channels-empty-actions">
+        <button class="channels-empty-btn email" (click)="openCreate('email')"><hugeicons-icon [icon]="Mail01Icon" [size]="14" color="currentColor" [strokeWidth]="1.5" /> Configura Email</button>
+        <button class="channels-empty-btn wa" (click)="openCreate('whatsapp')"><hugeicons-icon [icon]="Chatting01Icon" [size]="14" color="currentColor" [strokeWidth]="1.5" /> Configura WhatsApp</button>
+      </div>
+    </div>
+  } @else {
+    <div class="channels-grid">
+      @for (channel of filteredChannels(); track channel.id) {
+        <div class="channel-card" [class.inactive]="!channel.is_active">
+          <div class="channel-card-header">
+            <div class="channel-icon" [class.email]="channel.type === 'email'" [class.wa]="channel.type === 'whatsapp'">
+              @if (channel.type === 'email') {
+                <hugeicons-icon [icon]="Mail01Icon" [size]="18" color="currentColor" [strokeWidth]="1.5" />
+              } @else {
+                <hugeicons-icon [icon]="Chatting01Icon" [size]="18" color="currentColor" [strokeWidth]="1.5" />
+              }
+            </div>
+            <div class="channel-info">
+              <div class="channel-name">{{ channel.name }}</div>
+              <div class="channel-type-label">{{ getProviderLabel(channel) }}</div>
+            </div>
+            <div class="channel-status" [class.active]="channel.is_active" [class.off]="!channel.is_active">
+              {{ channel.is_active ? 'Attivo' : 'Disattivato' }}
+            </div>
+          </div>
+          <div class="channel-card-details">
+            @if (channel.type === 'email') {
+              <div class="detail-row">
+                <span class="detail-label">Provider</span>
+                <span class="detail-value provider-badge" [class]="$any(channel.config).provider">
+                  {{ getProviderLabel(channel) }}
+                </span>
+              </div>
+              @if ($any(channel.config).provider === 'smtp') {
+                <div class="detail-row">
+                  <span class="detail-label">Server</span>
+                  <span class="detail-value">{{ $any(channel.config).smtp_host }}:{{ $any(channel.config).smtp_port }}</span>
+                </div>
+              }
+              <div class="detail-row">
+                <span class="detail-label">Email</span>
+                <span class="detail-value">{{ getEmailDisplay(channel) }}</span>
+              </div>
+            } @else {
+              <div class="detail-row">
+                <span class="detail-label">Provider</span>
+                <span class="detail-value">{{ getProviderLabel(channel) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="detail-label">Numero</span>
+                <span class="detail-value">{{ $any(channel.config).phone_number }}</span>
+              </div>
+            }
+          </div>
+          <div class="channel-card-actions">
+            <button class="ch-btn toggle" (click)="toggleActive(channel)">
+              @if (channel.is_active) {
+                <hugeicons-icon [icon]="PauseIcon" [size]="12" color="currentColor" [strokeWidth]="1.5" /> Disattiva
+              } @else {
+                <hugeicons-icon [icon]="PlayIcon" [size]="12" color="currentColor" [strokeWidth]="1.5" /> Attiva
+              }
+            </button>
+            <button class="ch-btn edit" (click)="openEdit(channel)">Modifica</button>
+            <button class="ch-btn delete" (click)="deleteChannel(channel)">Elimina</button>
+          </div>
+        </div>
+      }
+
+      <div class="channel-card add-card" (click)="openCreate('email')">
+        <div class="add-card-inner">
+          <div class="add-card-icon"><hugeicons-icon [icon]="Mail01Icon" [size]="28" color="var(--blue)" [strokeWidth]="1.5" /></div>
+          <div class="add-card-label">Aggiungi Email</div>
+          <div class="add-card-sub">Google, Microsoft o SMTP</div>
+        </div>
+      </div>
+      <div class="channel-card add-card" (click)="openCreate('whatsapp')">
+        <div class="add-card-inner">
+          <div class="add-card-icon"><hugeicons-icon [icon]="Chatting01Icon" [size]="28" color="var(--blue)" [strokeWidth]="1.5" /></div>
+          <div class="add-card-label">Aggiungi WhatsApp</div>
+          <div class="add-card-sub">Connetti via Twilio o Meta</div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Modal -->
+@if (showModal()) {
+  <div class="modal-overlay" (click)="onOverlayClick($event)">
+    <div class="modal">
+      <!-- PICK PROVIDER -->
+      @if (modalMode() === 'pick') {
+        <div class="modal-header">
+          <div class="modal-header-icon email"><hugeicons-icon [icon]="Mail01Icon" [size]="18" color="white" [strokeWidth]="1.5" /></div>
+          <div>
+            <div class="modal-title">Collega Email</div>
+            <div class="modal-sub">Scegli come collegare la tua casella email</div>
+          </div>
+          <button class="modal-close" (click)="closeModal()"><hugeicons-icon [icon]="Cancel01Icon" [size]="18" color="currentColor" [strokeWidth]="1.5" /></button>
+        </div>
+        <div class="modal-body">
+          <div class="provider-grid">
+            <div class="provider-card" (click)="pickProvider('google')">
+              <div class="provider-card-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+              </div>
+              <div class="provider-card-name">Google</div>
+              <div class="provider-card-desc">Gmail e Google Workspace</div>
+              <div class="provider-card-tag oauth">OAuth2</div>
+            </div>
+            <div class="provider-card" (click)="pickProvider('microsoft')">
+              <div class="provider-card-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg>
+              </div>
+              <div class="provider-card-name">Microsoft</div>
+              <div class="provider-card-desc">Outlook e Office 365</div>
+              <div class="provider-card-tag oauth">OAuth2</div>
+            </div>
+            <div class="provider-card" (click)="pickProvider('smtp')">
+              <div class="provider-card-icon">
+                <hugeicons-icon [icon]="Mail01Icon" [size]="28" color="var(--text-muted)" [strokeWidth]="1.5" />
+              </div>
+              <div class="provider-card-name">SMTP</div>
+              <div class="provider-card-desc">Server personalizzato</div>
+              <div class="provider-card-tag manual">Manuale</div>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- OAUTH NAME (Google/Microsoft) -->
+      @if (modalMode() === 'oauth-name') {
+        <div class="modal-header">
+          <div class="modal-header-icon email"><hugeicons-icon [icon]="Mail01Icon" [size]="18" color="white" [strokeWidth]="1.5" /></div>
+          <div>
+            <div class="modal-title">{{ editingChannel() ? 'Modifica' : 'Collega' }} {{ oauthProvider === 'google' ? 'Google' : 'Microsoft' }}</div>
+            <div class="modal-sub">{{ editingChannel() ? 'Modifica le informazioni del canale' : 'Verrai reindirizzato per autorizzare l\'accesso' }}</div>
+          </div>
+          <button class="modal-close" (click)="closeModal()"><hugeicons-icon [icon]="Cancel01Icon" [size]="18" color="currentColor" [strokeWidth]="1.5" /></button>
+        </div>
+        <div class="modal-body">
+          @if (error()) {
+            <div class="modal-error">{{ error() }}</div>
+          }
+          <div class="form-group">
+            <label class="form-label">Nome canale</label>
+            <input class="form-input" type="text" [placeholder]="oauthProvider === 'google' ? 'es. Gmail principale' : 'es. Outlook agenzia'" [(ngModel)]="channelName">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nome mittente</label>
+            <input class="form-input" type="text" placeholder="es. Agenzia Pellegrini" [(ngModel)]="fromName">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" (click)="modalMode.set('pick')">Indietro</button>
+          <button
+            class="btn oauth-btn"
+            [class.google]="oauthProvider === 'google'"
+            [class.microsoft]="oauthProvider === 'microsoft'"
+            (click)="connectOAuth()"
+            [disabled]="saving() || !channelName.trim()"
+          >
+            @if (saving()) {
+              Connessione...
+            } @else if (editingChannel()) {
+              <hugeicons-icon [icon]="Tick01Icon" [size]="14" color="currentColor" [strokeWidth]="2" /> Salva modifiche
+            } @else if (oauthProvider === 'google') {
+              Accedi con Google
+            } @else {
+              Accedi con Microsoft
+            }
+          </button>
+        </div>
+      }
+
+      <!-- SMTP FORM -->
+      @if (modalMode() === 'smtp') {
+        <div class="modal-header">
+          <div class="modal-header-icon email"><hugeicons-icon [icon]="Mail01Icon" [size]="18" color="white" [strokeWidth]="1.5" /></div>
+          <div>
+            <div class="modal-title">{{ editingChannel() ? 'Modifica' : 'Nuovo' }} canale SMTP</div>
+            <div class="modal-sub">Configura la connessione al tuo server SMTP</div>
+          </div>
+          <button class="modal-close" (click)="closeModal()"><hugeicons-icon [icon]="Cancel01Icon" [size]="18" color="currentColor" [strokeWidth]="1.5" /></button>
+        </div>
+        <div class="modal-body">
+          @if (error()) {
+            <div class="modal-error">{{ error() }}</div>
+          }
+          <div class="form-group">
+            <label class="form-label">Nome canale</label>
+            <input class="form-input" type="text" placeholder="es. Email agenzia" [(ngModel)]="channelName">
+          </div>
+          <div class="form-row">
+            <div class="form-group flex-3">
+              <label class="form-label">Server SMTP</label>
+              <input class="form-input" type="text" placeholder="smtp.esempio.com" [(ngModel)]="smtpHost">
+            </div>
+            <div class="form-group flex-1">
+              <label class="form-label">Porta</label>
+              <input class="form-input" type="number" [(ngModel)]="smtpPort">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Utente SMTP</label>
+              <input class="form-input" type="text" placeholder="user@esempio.com" [(ngModel)]="smtpUser">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password SMTP</label>
+              <input class="form-input" type="password" placeholder="••••••••" [(ngModel)]="smtpPass">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Email mittente</label>
+              <input class="form-input" type="email" placeholder="noreply@agenzia.it" [(ngModel)]="fromEmail">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nome mittente</label>
+              <input class="form-input" type="text" placeholder="Agenzia Pellegrini" [(ngModel)]="fromName">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-check">
+              <input type="checkbox" [(ngModel)]="useTls">
+              <span>Usa TLS / SSL</span>
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          @if (!editingChannel()) {
+            <button class="btn btn-ghost" (click)="modalMode.set('pick')">Indietro</button>
+          }
+          <button class="btn btn-ghost" (click)="closeModal()">Annulla</button>
+          <button class="btn btn-primary" (click)="saveManual()" [disabled]="saving() || !channelName.trim()">
+            @if (saving()) {
+              Salvataggio...
+            } @else {
+              <hugeicons-icon [icon]="Tick01Icon" [size]="14" color="currentColor" [strokeWidth]="2" /> {{ editingChannel() ? 'Salva modifiche' : 'Crea canale' }}
+            }
+          </button>
+        </div>
+      }
+
+      <!-- WHATSAPP FORM -->
+      @if (modalMode() === 'whatsapp') {
+        <div class="modal-header">
+          <div class="modal-header-icon wa"><hugeicons-icon [icon]="Chatting01Icon" [size]="18" color="white" [strokeWidth]="1.5" /></div>
+          <div>
+            <div class="modal-title">{{ editingChannel() ? 'Modifica' : 'Nuovo' }} canale WhatsApp</div>
+            <div class="modal-sub">Configura la connessione WhatsApp API</div>
+          </div>
+          <button class="modal-close" (click)="closeModal()"><hugeicons-icon [icon]="Cancel01Icon" [size]="18" color="currentColor" [strokeWidth]="1.5" /></button>
+        </div>
+        <div class="modal-body">
+          @if (error()) {
+            <div class="modal-error">{{ error() }}</div>
+          }
+          <div class="form-group">
+            <label class="form-label">Nome canale</label>
+            <input class="form-input" type="text" placeholder="es. WhatsApp agenzia" [(ngModel)]="channelName">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Provider</label>
+            <div class="type-toggle">
+              <button class="type-btn" [class.active]="waProvider === 'twilio'" (click)="waProvider = 'twilio'">Twilio</button>
+              <button class="type-btn" [class.active]="waProvider === 'meta'" (click)="waProvider = 'meta'">Meta Business</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">API Key</label>
+            <input class="form-input" type="password" placeholder="La tua API key" [(ngModel)]="waApiKey">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Numero di telefono</label>
+            <input class="form-input" type="text" placeholder="+39 333 1234567" [(ngModel)]="waPhoneNumber">
+          </div>
+          @if (waProvider === 'twilio') {
+            <div class="form-group">
+              <label class="form-label">Account SID (Twilio)</label>
+              <input class="form-input" type="text" placeholder="AC..." [(ngModel)]="waAccountSid">
+            </div>
+          }
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-ghost" (click)="closeModal()">Annulla</button>
+          <button class="btn btn-primary" (click)="saveManual()" [disabled]="saving() || !channelName.trim()">
+            @if (saving()) {
+              Salvataggio...
+            } @else {
+              <hugeicons-icon [icon]="Tick01Icon" [size]="14" color="currentColor" [strokeWidth]="2" /> {{ editingChannel() ? 'Salva modifiche' : 'Crea canale' }}
+            }
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+}

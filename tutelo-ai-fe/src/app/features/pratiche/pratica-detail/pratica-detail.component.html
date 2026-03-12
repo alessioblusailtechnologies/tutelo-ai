@@ -1,0 +1,164 @@
+@if (pratica(); as p) {
+  <!-- Header -->
+  <div class="detail-header">
+    <button class="back-btn" (click)="goBack()">
+      <hugeicons-icon [icon]="ArrowLeft01Icon" [size]="16" color="currentColor" [strokeWidth]="1.5" />
+      Pratiche
+    </button>
+    <div class="detail-title-row">
+      <span class="detail-icon">{{ typeIcon[p.type] }}</span>
+      <div class="detail-title-block">
+        <div class="detail-title">{{ p.title }}</div>
+        <div class="detail-subtitle">
+          <span class="type-badge">{{ typeLabel[p.type] }}</span>
+          <span class="client-name">{{ p.client_name }}</span>
+          @if (p.client_email) {
+            <span class="client-email">· {{ p.client_email }}</span>
+          }
+        </div>
+      </div>
+      <div class="detail-actions">
+        <select class="status-select" [class]="statusClass(p.status)" [value]="p.status" (change)="changeStatus($any($event.target).value)">
+          @for (s of statuses; track s) {
+            <option [value]="s">{{ statusLabel[s] }}</option>
+          }
+        </select>
+        <span class="priority-badge" [class]="p.priority === 'high' ? 'priority-high' : p.priority === 'med' ? 'priority-med' : 'priority-low'">
+          {{ p.priority === 'high' ? '● Alta' : p.priority === 'med' ? '● Media' : '● Bassa' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="detail-tabs">
+    <button class="detail-tab" [class.active]="activeTab() === 'overview'" (click)="setTab('overview')">Panoramica</button>
+    <button class="detail-tab" [class.active]="activeTab() === 'notes'" (click)="setTab('notes')">Note ({{ notes().length }})</button>
+    <button class="detail-tab" [class.active]="activeTab() === 'artifacts'" (click)="setTab('artifacts')">Documenti ({{ artifacts().length }})</button>
+  </div>
+
+  <!-- Tab content -->
+  <div class="detail-content">
+
+    <!-- Overview -->
+    @if (activeTab() === 'overview') {
+      <div class="overview-grid">
+        <div class="overview-card">
+          <div class="overview-card-title">Informazioni</div>
+          <div class="info-row"><span class="info-label">Tipo</span><span class="info-value">{{ typeLabel[p.type] }}</span></div>
+          <div class="info-row"><span class="info-label">Cliente</span><span class="info-value">{{ p.client_name }}</span></div>
+          @if (p.client_email) {
+            <div class="info-row"><span class="info-label">Email</span><span class="info-value">{{ p.client_email }}</span></div>
+          }
+          @if (p.client_phone) {
+            <div class="info-row"><span class="info-label">Telefono</span><span class="info-value">{{ p.client_phone }}</span></div>
+          }
+          <div class="info-row"><span class="info-label">Creata</span><span class="info-value">{{ formatDate(p.created_at) }}</span></div>
+          @if (p.due_date) {
+            <div class="info-row"><span class="info-label">Scadenza</span><span class="info-value">{{ formatShortDate(p.due_date) }}</span></div>
+          }
+        </div>
+
+        @if (p.description) {
+          <div class="overview-card">
+            <div class="overview-card-title">Descrizione</div>
+            <div class="description-text">{{ p.description }}</div>
+          </div>
+        }
+
+        <!-- Quick view: latest artifact -->
+        @if (artifacts().length > 0) {
+          <div class="overview-card wide">
+            <div class="overview-card-title">
+              Ultimo documento generato
+              <button class="link-btn" (click)="setTab('artifacts')">Vedi tutti</button>
+            </div>
+            <div class="artifact-preview">
+              <div class="artifact-preview-title">{{ artifacts()[0].title }}</div>
+              <div class="artifact-preview-content" [innerHTML]="artifacts()[0].content.substring(0, 500) | markdown"></div>
+            </div>
+          </div>
+        }
+
+        <!-- Quick view: latest notes -->
+        @if (notes().length > 0) {
+          <div class="overview-card wide">
+            <div class="overview-card-title">
+              Ultime note
+              <button class="link-btn" (click)="setTab('notes')">Vedi tutte</button>
+            </div>
+            @for (n of notes().slice(-3); track n.id) {
+              <div class="note-preview">
+                <div class="note-preview-date">{{ formatShortDate(n.created_at) }}</div>
+                <div class="note-preview-text">{{ n.content }}</div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Notes -->
+    @if (activeTab() === 'notes') {
+      <div class="notes-section">
+        <div class="notes-list">
+          @if (notes().length === 0) {
+            <div class="notes-empty">Nessuna nota. Aggiungi la prima nota qui sotto.</div>
+          }
+          @for (n of notes(); track n.id) {
+            <div class="note-card">
+              <div class="note-date">{{ formatDate(n.created_at) }}</div>
+              <div class="note-content">{{ n.content }}</div>
+            </div>
+          }
+        </div>
+        <div class="note-form">
+          <textarea class="note-input" placeholder="Scrivi una nota..." [(ngModel)]="noteText" rows="3"></textarea>
+          <button class="note-submit" (click)="addNote()" [disabled]="savingNote() || !noteText.trim()">
+            {{ savingNote() ? 'Salvataggio...' : 'Aggiungi nota' }}
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- Artifacts -->
+    @if (activeTab() === 'artifacts') {
+      <div class="artifacts-section">
+        @if (artifacts().length === 0) {
+          <div class="artifacts-empty">
+            <div class="empty-icon"><hugeicons-icon [icon]="FolderOpenIcon" [size]="36" color="var(--text-muted)" [strokeWidth]="1.5" /></div>
+            <div class="empty-title">Nessun documento</div>
+            <div class="empty-desc">I documenti vengono generati automaticamente dall'AI quando la pratica viene creata.</div>
+          </div>
+        } @else {
+          <div class="artifacts-layout">
+            <div class="artifacts-sidebar">
+              @for (a of artifacts(); track a.id) {
+                <div class="artifact-item" [class.active]="selectedArtifact()?.id === a.id" (click)="selectArtifact(a)">
+                  <div class="artifact-item-icon"><hugeicons-icon [icon]="File01Icon" [size]="18" color="var(--blue)" [strokeWidth]="1.5" /></div>
+                  <div class="artifact-item-info">
+                    <div class="artifact-item-title">{{ a.title }}</div>
+                    <div class="artifact-item-date">{{ formatShortDate(a.created_at) }}</div>
+                  </div>
+                </div>
+              }
+            </div>
+            @if (selectedArtifact(); as art) {
+              <div class="artifact-viewer">
+                <div class="artifact-viewer-header">
+                  <div class="artifact-viewer-title">{{ art.title }}</div>
+                  @if (art.ai_model) {
+                    <span class="artifact-ai-badge">Generato da AI · {{ art.ai_model }}</span>
+                  }
+                </div>
+                <div class="artifact-viewer-body" [innerHTML]="art.content | markdown"></div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+} @else if (loading()) {
+  <div class="loading-state">Caricamento...</div>
+}

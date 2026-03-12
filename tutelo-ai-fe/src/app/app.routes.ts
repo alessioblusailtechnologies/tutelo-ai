@@ -21,6 +21,18 @@ export const routes: Routes = [
       {
         path: 'agenti',
         loadComponent: () => import('./features/agents/agents.component').then(m => m.AgentsComponent)
+      },
+      {
+        path: 'pratiche',
+        loadComponent: () => import('./features/pratiche/pratiche.component').then(m => m.PraticheComponent)
+      },
+      {
+        path: 'pratiche/:id',
+        loadComponent: () => import('./features/pratiche/pratica-detail/pratica-detail.component').then(m => m.PraticaDetailComponent)
+      },
+      {
+        path: 'canali',
+        loadComponent: () => import('./features/channels/channels.component').then(m => m.ChannelsComponent)
       }
     ]
   }

@@ -4,9 +4,7 @@
     <div class="inbox-list-header">
       <div class="inbox-list-title">Messaggi</div>
       <span class="ai-mini-badge" style="margin-left:auto">
-        <svg width="7" height="7" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-        </svg>
+        <hugeicons-icon [icon]="SparklesIcon" [size]="10" color="currentColor" [strokeWidth]="1.5" />
         AI on
       </span>
     </div>
@@ -24,7 +22,7 @@
     <div class="msg-list">
       @if (messages().length === 0 && !loading()) {
         <div class="msg-list-empty">
-          <div class="msg-list-empty-icon">📭</div>
+          <div class="msg-list-empty-icon"><hugeicons-icon [icon]="InboxIcon" [size]="32" color="var(--text-muted)" [strokeWidth]="1.5" /></div>
           <div class="msg-list-empty-title">Nessun messaggio</div>
           <div class="msg-list-empty-desc">I messaggi in arrivo da email e WhatsApp appariranno qui.</div>
         </div>
@@ -37,8 +35,15 @@
             (click)="selectMessage(msg.id)"
           >
             <div class="msg-top-row">
+              @if (!msg.is_read) {
+                <span class="unread-dot"></span>
+              }
               <div class="msg-source" [class.email]="msg.source === 'email'" [class.wa]="msg.source === 'whatsapp'">
-                {{ msg.source === 'email' ? '📧' : '💬' }}
+                @if (msg.source === 'email') {
+                  <hugeicons-icon [icon]="Mail01Icon" [size]="11" color="currentColor" [strokeWidth]="1.5" />
+                } @else {
+                  <hugeicons-icon [icon]="Chatting01Icon" [size]="11" color="currentColor" [strokeWidth]="1.5" />
+                }
               </div>
               <div class="msg-from">{{ msg.from_name }}</div>
               <div class="msg-time">{{ formatTime(msg.received_at) }}</div>
@@ -67,10 +72,10 @@
           <div class="preview-from">{{ msg.from_name }}</div>
           <div class="preview-meta">
             @if (msg.from_email) {
-              <span>📧 {{ msg.from_email }}</span>
+              <span class="meta-item"><hugeicons-icon [icon]="Mail01Icon" [size]="12" color="currentColor" [strokeWidth]="1.5" /> {{ msg.from_email }}</span>
             }
             @if (msg.from_phone) {
-              <span>💬 {{ msg.from_phone }}</span>
+              <span class="meta-item"><hugeicons-icon [icon]="Chatting01Icon" [size]="12" color="currentColor" [strokeWidth]="1.5" /> {{ msg.from_phone }}</span>
             }
             <span>{{ formatTime(msg.received_at) }}</span>
             @if (msg.priority === 'high') {
@@ -94,15 +99,13 @@
           <div class="ai-analysis">
             <div class="ai-analysis-header">
               <div class="ai-analysis-header-icon">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="white">
-                  <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-                </svg>
+                <hugeicons-icon [icon]="SparklesIcon" [size]="13" color="white" [strokeWidth]="1.5" />
               </div>
               <div class="ai-analysis-title">Analisi AI</div>
               <div class="ai-analysis-sub">Generata in {{ ai.generation_time_ms }}ms · Confidenza {{ ai.confidence }}</div>
             </div>
             <div class="ai-analysis-body">
-              <div class="ai-summary" [innerHTML]="ai.summary"></div>
+              <div class="ai-summary" [innerHTML]="ai.summary | markdown"></div>
               <div class="ai-entities">
                 @for (entity of ai.entities; track entity.label) {
                   <div class="ai-entity">
@@ -126,7 +129,7 @@
                       <div class="action-desc">{{ action.description }}</div>
                     </div>
                     <div class="action-right">
-                      <button class="action-btn blue">{{ action.action_type }}</button>
+                      <button class="action-btn blue" (click)="executeAction(action)">Crea pratica</button>
                     </div>
                   </div>
                 }
@@ -137,7 +140,7 @@
       </div>
     } @else {
       <div class="preview-empty">
-        <div class="preview-empty-icon">📨</div>
+        <div class="preview-empty-icon"><hugeicons-icon [icon]="MailOpen01Icon" [size]="32" color="var(--text-muted)" [strokeWidth]="1.5" /></div>
         <div class="preview-empty-title">Seleziona un messaggio</div>
         <div class="preview-empty-desc">Clicca su un messaggio dalla lista per vederne il contenuto e l'analisi AI.</div>
       </div>

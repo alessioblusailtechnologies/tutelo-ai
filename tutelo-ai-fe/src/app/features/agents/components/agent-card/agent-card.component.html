@@ -23,9 +23,9 @@
     <div class="agent-last-run">Creato: <strong>{{ agent().created_at | date:'dd MMM' }}</strong></div>
     <button class="agent-footer-btn edit">Modifica</button>
     @if (agent().status === 'running') {
-      <button class="agent-footer-btn pause">⏸ Pausa</button>
+      <button class="agent-footer-btn pause"><hugeicons-icon [icon]="PauseIcon" [size]="12" color="currentColor" [strokeWidth]="1.5" /> Pausa</button>
     } @else {
-      <button class="agent-footer-btn run">▶ Riattiva</button>
+      <button class="agent-footer-btn run"><hugeicons-icon [icon]="PlayIcon" [size]="12" color="currentColor" [strokeWidth]="1.5" /> Riattiva</button>
     }
   </div>
 </div>

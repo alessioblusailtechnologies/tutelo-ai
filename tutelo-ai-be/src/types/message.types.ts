@@ -17,6 +17,8 @@ export interface Message {
   priority_label: string | null;
   is_read: boolean;
   ai_badge: string | null;
+  external_id: string | null;
+  channel_id: string | null;
   received_at: string;
   created_at: string;
   updated_at: string;
@@ -31,6 +33,8 @@ export interface CreateMessageDto {
   source: MessageSource;
   tag?: MessageTag;
   priority?: MessagePriority;
+  external_id?: string;
+  channel_id?: string;
 }
 
 export interface UpdateMessageDto {

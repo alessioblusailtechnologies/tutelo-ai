@@ -1,24 +1,20 @@
 <div class="ai-actions-strip">
   <div class="ai-actions-header">
     <div class="ai-actions-header-icon">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="white">
-        <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-      </svg>
+      <hugeicons-icon [icon]="SparklesIcon" [size]="15" color="white" [strokeWidth]="1.5" />
     </div>
     <div class="ai-actions-header-title">Azioni suggerite dall'AI</div>
     <div class="ai-actions-header-sub">basate sui messaggi ricevuti oggi</div>
     @if (actions().length > 0) {
       <div class="ai-actions-header-badge">
-        <svg width="8" height="8" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/>
-        </svg>
+        <hugeicons-icon [icon]="SparklesIcon" [size]="10" color="currentColor" [strokeWidth]="1.5" />
         {{ actions().length }} nuove
       </div>
     }
   </div>
   @if (actions().length === 0 && !loading()) {
     <div class="ai-actions-empty">
-      <div class="ai-actions-empty-icon">✨</div>
+      <div class="ai-actions-empty-icon"><hugeicons-icon [icon]="SparklesIcon" [size]="36" color="var(--text-muted)" [strokeWidth]="1.5" /></div>
       <div class="ai-actions-empty-title">Nessuna azione suggerita</div>
       <div class="ai-actions-empty-desc">Quando l'AI rileverà nuove azioni dai tuoi messaggi, appariranno qui.</div>
     </div>

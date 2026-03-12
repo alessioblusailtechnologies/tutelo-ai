@@ -112,7 +112,8 @@
 }
 
 .instructions-box {
-  background: var(--navy);
+  background: var(--bg-light);
+  border: 1.5px solid var(--border);
   border-radius: 12px;
   padding: 14px 16px;
 }
@@ -121,7 +122,7 @@
   font-size: 9px;
   letter-spacing: 2px;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-faint);
   margin-bottom: 8px;
   display: flex;
   align-items: center;
@@ -132,7 +133,7 @@
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #5BAAFF;
+    background: var(--blue);
     display: inline-block;
   }
 }
@@ -143,23 +144,23 @@
   outline: none;
   font-family: 'DM Sans', sans-serif;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text);
   line-height: 1.7;
   width: 100%;
   resize: none;
   min-height: 110px;
 
   &::placeholder {
-    color: rgba(255, 255, 255, 0.25);
+    color: var(--text-faint);
   }
 }
 
 .instructions-hint {
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--border);
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-muted);
   display: flex;
   align-items: center;
   gap: 6px;
