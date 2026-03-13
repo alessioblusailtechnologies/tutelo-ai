@@ -1,6 +1,6 @@
 <aside class="sidebar">
   <div class="sidebar-logo">
-    <svg width="34" height="34" viewBox="0 0 72 72" fill="none">
+    <svg width="26" height="26" viewBox="0 0 72 72" fill="none">
       <defs>
         <linearGradient id="sl1" x1="0" y1="0" x2="72" y2="72" gradientUnits="userSpaceOnUse">
           <stop offset="0%" stop-color="#3A82D4"/>
@@ -20,7 +20,10 @@
       <circle cx="47.5" cy="38.5" r="1" fill="white" opacity="0.8"/>
       <ellipse cx="36" cy="51" rx="5.5" ry="4" fill="white" opacity="0.6"/>
     </svg>
-    <div class="name">tutelo<span class="ai">.ai</span></div>
+    <div class="logo-text">
+      <div class="name">tutelo<span class="ai">.ai</span></div>
+      <div class="tagline">INTELLIGENZA ASSICURATIVA</div>
+    </div>
   </div>
 
   <div class="sidebar-section">
@@ -51,8 +54,8 @@
     <div class="user-row">
       <div class="avatar">{{ initials() }}</div>
       <div class="user-info">
-        <div class="user-name">{{ profile()?.full_name || 'Utente' }}</div>
-        <div class="user-role">{{ profile()?.role || 'Agente' }}</div>
+        <div class="user-name">{{ profile()?.full_name || 'Agenzia Raso' }}</div>
+        <div class="user-email">{{ email() }}</div>
       </div>
       <button class="logout-btn" (click)="logout()" title="Esci">
         <hugeicons-icon [icon]="Logout01Icon" [size]="16" color="currentColor" [strokeWidth]="1.5" />

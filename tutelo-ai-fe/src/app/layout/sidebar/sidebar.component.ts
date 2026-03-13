@@ -15,6 +15,7 @@ export class SidebarComponent {
   private readonly authService = inject(AuthService);
   readonly profile = this.authService.profile;
   readonly initials = this.authService.userInitials;
+  readonly email = this.authService.userEmail;
 
   readonly DashboardBrowsingIcon = DashboardBrowsingIcon;
   readonly Folder01Icon = Folder01Icon;

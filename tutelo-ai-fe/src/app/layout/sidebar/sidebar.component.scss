@@ -12,24 +12,35 @@
 }
 
 .sidebar-logo {
-  padding: 26px 24px 22px;
+  height: 58px;
+  padding: 0 20px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
 
+.logo-text {
   .name {
     font-family: 'Playfair Display', serif;
-    font-size: 21px;
+    font-size: 17px;
     font-weight: 400;
     color: #EDF3FF;
     letter-spacing: -0.3px;
+    line-height: 1;
 
     .ai {
       color: #7EB8FF;
       opacity: 0.8;
       font-weight: 300;
     }
+  }
+
+  .tagline {
+    font-size: 7px;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.25);
+    margin-top: 3px;
   }
 }
 
@@ -150,9 +161,12 @@
     text-overflow: ellipsis;
   }
 
-  .user-role {
+  .user-email {
     font-size: 10px;
     color: rgba(255, 255, 255, 0.28);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 

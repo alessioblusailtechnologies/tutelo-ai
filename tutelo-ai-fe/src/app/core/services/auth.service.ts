@@ -22,8 +22,17 @@ export class AuthService {
   readonly isAuthenticated = computed(() => !!this.getToken());
   readonly userInitials = computed(() => {
     const name = this._profile()?.full_name;
-    if (!name) return '??';
-    return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    if (name) return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const email = this.userEmail();
+    if (email) return email[0].toUpperCase();
+    return 'AR';
+  });
+  readonly userEmail = computed(() => {
+    try {
+      const raw = localStorage.getItem('tutelo_user');
+      if (raw) return JSON.parse(raw).email as string;
+    } catch {}
+    return '';
   });
 
   get token(): string | null {

@@ -70,6 +70,6 @@ export const config: Config = {
     redirectBaseUrl: optionalEnv('OAUTH_REDIRECT_BASE_URL', 'http://localhost:3000'),
   },
   polling: {
-    emailIntervalMs: parseInt(optionalEnv('EMAIL_POLL_INTERVAL_MS', '120000'), 10), // 2 min default
+    emailIntervalMs: parseInt(optionalEnv('EMAIL_POLL_INTERVAL_MS', '15000'), 10), // 15s default
   },
 };

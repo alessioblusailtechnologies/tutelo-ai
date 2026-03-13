@@ -75,6 +75,7 @@ async function updateLastPolledAt(channelId: string, userId: string): Promise<vo
 
 async function pollChannel(channel: Channel): Promise<number> {
   const cfg = channel.config as any;
+  const label = cfg.email || cfg.provider || channel.id;
   let emails: FetchedEmail[] = [];
   let newAccessToken: string | undefined;
 
@@ -82,6 +83,8 @@ async function pollChannel(channel: Channel): Promise<number> {
   const lastPolled = cfg.last_polled_at
     ? new Date(cfg.last_polled_at)
     : new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  console.log(`[email-polling] 📨 Polling channel "${label}" (${cfg.provider}) — since ${lastPolled.toISOString()}`);
 
   try {
     if (cfg.provider === 'google') {
@@ -94,25 +97,34 @@ async function pollChannel(channel: Channel): Promise<number> {
       emails = result.emails;
       newAccessToken = result.newAccessToken;
     } else {
-      // SMTP channels — no polling support yet (would need IMAP)
+      console.log(`[email-polling]   ⏭ Skipping channel "${label}" — provider "${cfg.provider}" not supported for polling`);
       return 0;
     }
   } catch (err: any) {
-    console.error(`[email-polling] Error fetching from channel ${channel.id} (${cfg.provider}):`, err.message);
+    console.error(`[email-polling]   ❌ Error fetching from channel "${label}" (${cfg.provider}):`, err.message);
     return 0;
   }
 
+  console.log(`[email-polling]   📥 Fetched ${emails.length} email(s) from "${label}"`);
+
   // Persist refreshed access token
   if (newAccessToken) {
+    console.log(`[email-polling]   🔄 Access token refreshed for "${label}"`);
     await updateChannelAccessToken(channel.id, channel.user_id, newAccessToken).catch(() => {});
   }
 
   // Deduplicate and insert new messages
   let created = 0;
+  let skipped = 0;
   for (const email of emails) {
     try {
       const exists = await messageExists(channel.user_id, email.externalId);
-      if (exists) continue;
+      if (exists) {
+        skipped++;
+        continue;
+      }
+
+      console.log(`[email-polling]   ✉ New: from="${email.from}" <${email.fromEmail}> subj="${email.subject}"`);
 
       const message = await messageRepository.create(channel.user_id, {
         from_name: email.from,
@@ -128,13 +140,14 @@ async function pollChannel(channel: Channel): Promise<number> {
 
       // Fire-and-forget AI classification
       messageService.analyzeMessage(message.id, channel.user_id).catch((err) => {
-        console.error(`[email-polling] AI analysis failed for message ${message.id}:`, err.message);
+        console.error(`[email-polling]   ❌ AI analysis failed for message ${message.id}:`, err.message);
       });
     } catch (err: any) {
-      // Likely unique constraint violation or other insert error — skip
-      console.error(`[email-polling] Failed to create message (${email.externalId}):`, err.message);
+      console.error(`[email-polling]   ❌ Failed to create message (${email.externalId}):`, err.message);
     }
   }
+
+  console.log(`[email-polling]   ✅ Channel "${label}": ${created} new, ${skipped} duplicates skipped`);
 
   // Update last polled timestamp
   await updateLastPolledAt(channel.id, channel.user_id).catch(() => {});

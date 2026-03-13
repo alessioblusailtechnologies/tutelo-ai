@@ -131,34 +131,34 @@ Tipo pratica: ${pratica.type}
 Titolo: ${pratica.title}
 Descrizione: ${pratica.description || 'N/D'}${messageContext}`;
 
-    const provider = getAiProvider('openai');
+    const provider = getAiProvider('claude');
     const response = await provider.generate({
       systemPrompt,
       userPrompt,
-      model: 'gpt-4o-mini',
+      model: 'claude-opus-4-6',
     });
 
     return praticaRepository.createArtifact(pratica.id, {
       type: TYPE_TO_ARTIFACT[pratica.type],
       title: TYPE_TO_ARTIFACT_TITLE[pratica.type],
       content: response.content,
-      ai_model: 'gpt-4o-mini',
+      ai_model: 'claude-opus-4-6',
     });
   },
 
   async generateNewArtifact(praticaId: string, userId: string, artifactType: ArtifactType, title: string, prompt: string): Promise<PraticaArtifact> {
-    const provider = getAiProvider('openai');
+    const provider = getAiProvider('claude');
     const response = await provider.generate({
       systemPrompt: 'Sei un assistente AI per un\'agenzia assicurativa italiana. Genera il documento richiesto in modo professionale, in italiano, formattato in markdown.',
       userPrompt: prompt,
-      model: 'gpt-4o-mini',
+      model: 'claude-opus-4-6',
     });
 
     return praticaRepository.createArtifact(praticaId, {
       type: artifactType,
       title,
       content: response.content,
-      ai_model: 'gpt-4o-mini',
+      ai_model: 'claude-opus-4-6',
     });
   },
 };

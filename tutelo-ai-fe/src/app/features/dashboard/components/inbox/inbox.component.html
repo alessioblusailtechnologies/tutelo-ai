@@ -92,7 +92,7 @@
         @if (msg.body) {
           <div class="msg-bubble">
             <div class="msg-bubble-label">Messaggio originale</div>
-            <div [innerHTML]="msg.body"></div>
+            <div [innerHTML]="msg.body | markdown"></div>
           </div>
         }
         @if (selectedAnalysis(); as ai) {

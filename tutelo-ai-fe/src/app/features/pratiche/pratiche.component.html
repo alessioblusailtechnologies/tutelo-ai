@@ -5,48 +5,30 @@
   (ctaClick)="null"
 />
 <div class="content">
-  <!-- Stats -->
-  <div class="stats-row">
-    <div class="stat-card" (click)="setFilter('all'); setStatus('all')">
-      <div class="stat-value">{{ counts().all }}</div>
-      <div class="stat-label">Totali</div>
-    </div>
-    <div class="stat-card accent" (click)="setStatus('all'); setFilter('all')">
-      <div class="stat-value">{{ counts().aperte }}</div>
-      <div class="stat-label">Aperte</div>
-    </div>
-    <div class="stat-card" (click)="setFilter('preventivo')">
-      <div class="stat-value">{{ counts().preventivi }}</div>
-      <div class="stat-label">Preventivi</div>
-    </div>
-    <div class="stat-card" (click)="setFilter('sinistro')">
-      <div class="stat-value">{{ counts().sinistri }}</div>
-      <div class="stat-label">Sinistri</div>
-    </div>
-    <div class="stat-card" (click)="setFilter('rinnovo')">
-      <div class="stat-value">{{ counts().rinnovi }}</div>
-      <div class="stat-label">Rinnovi</div>
-    </div>
-  </div>
-
-  <!-- Filters -->
-  <div class="filter-row">
+  <!-- Toolbar -->
+  <div class="toolbar">
     <div class="filter-tabs">
-      <button class="filter-tab" [class.active]="activeFilter() === 'all'" (click)="setFilter('all')">Tutte</button>
-      <button class="filter-tab" [class.active]="activeFilter() === 'preventivo'" (click)="setFilter('preventivo')">Preventivi</button>
-      <button class="filter-tab" [class.active]="activeFilter() === 'sinistro'" (click)="setFilter('sinistro')">Sinistri</button>
-      <button class="filter-tab" [class.active]="activeFilter() === 'rinnovo'" (click)="setFilter('rinnovo')">Rinnovi</button>
+      <button class="filter-tab" [class.active]="activeFilter() === 'all'" (click)="setFilter('all')">Tutte ({{ counts().all }})</button>
+      <button class="filter-tab" [class.active]="activeFilter() === 'preventivo'" (click)="setFilter('preventivo')">Preventivi ({{ counts().preventivi }})</button>
+      <button class="filter-tab" [class.active]="activeFilter() === 'sinistro'" (click)="setFilter('sinistro')">Sinistri ({{ counts().sinistri }})</button>
+      <button class="filter-tab" [class.active]="activeFilter() === 'rinnovo'" (click)="setFilter('rinnovo')">Rinnovi ({{ counts().rinnovi }})</button>
       <button class="filter-tab" [class.active]="activeFilter() === 'richiesta_documenti'" (click)="setFilter('richiesta_documenti')">Richieste</button>
     </div>
-    <div class="status-filter">
-      <select [value]="activeStatus()" (change)="setStatus($any($event.target).value)">
-        <option value="all">Tutti gli stati</option>
-        <option value="aperta">Aperte</option>
-        <option value="in_lavorazione">In lavorazione</option>
-        <option value="in_attesa">In attesa</option>
-        <option value="completata">Completate</option>
-        <option value="annullata">Annullate</option>
-      </select>
+    <div class="toolbar-right">
+      <div class="search-box">
+        <hugeicons-icon [icon]="Search01Icon" [size]="13" color="var(--text-muted)" [strokeWidth]="2" />
+        <input type="text" placeholder="Cerca per cliente o titolo..." [value]="searchQuery()" (input)="setSearch($any($event.target).value)">
+      </div>
+      <div class="status-filter">
+        <select [value]="activeStatus()" (change)="setStatus($any($event.target).value)">
+          <option value="all">Tutti gli stati</option>
+          <option value="aperta">Aperte</option>
+          <option value="in_lavorazione">In lavorazione</option>
+          <option value="in_attesa">In attesa</option>
+          <option value="completata">Completate</option>
+          <option value="annullata">Annullate</option>
+        </select>
+      </div>
     </div>
   </div>
 

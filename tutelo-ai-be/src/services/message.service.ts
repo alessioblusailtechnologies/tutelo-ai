@@ -1,7 +1,9 @@
 import { messageRepository } from '../repositories/message.repository.js';
 import { aiAnalysisRepository } from '../repositories/ai-analysis.repository.js';
+import { aiActionRepository } from '../repositories/ai-action.repository.js';
 import { getAiProvider } from './ai/ai-provider.factory.js';
 import type { Message, CreateMessageDto, UpdateMessageDto, AiAnalysis } from '../types/message.types.js';
+import type { AiActionType } from '../types/ai-action.types.js';
 
 export const messageService = {
   async list(userId: string): Promise<Message[]> {
@@ -31,7 +33,7 @@ export const messageService = {
   async analyzeMessage(messageId: string, userId: string): Promise<AiAnalysis> {
     const message = await messageRepository.findById(messageId, userId);
 
-    const provider = getAiProvider('openai');
+    const provider = getAiProvider('claude');
     const start = Date.now();
 
     const response = await provider.generate({
@@ -55,7 +57,7 @@ Rispondi in formato JSON con questa struttura:
   "ai_badge": "breve badge"
 }`,
       userPrompt: `Da: ${message.from_name}\nOggetto: ${message.subject}\n\n${message.body}`,
-      model: 'gpt-4o-mini',
+      model: 'claude-opus-4-6',
     });
 
     const generationTimeMs = Date.now() - start;
@@ -89,7 +91,7 @@ Rispondi in formato JSON con questa struttura:
       await messageRepository.update(messageId, userId, updateFields as any);
     }
 
-    return aiAnalysisRepository.create({
+    const analysis = await aiAnalysisRepository.create({
       message_id: messageId,
       summary: parsed.summary,
       confidence: 'alta',
@@ -97,5 +99,45 @@ Rispondi in formato JSON con questa struttura:
       entities: parsed.entities,
       proposed_actions: parsed.proposed_actions,
     });
+
+    // Create ai_actions from proposed_actions so they appear in the dashboard strip
+    const proposedActions = parsed.proposed_actions || [];
+    const priorityToType: Record<string, AiActionType> = {
+      high: 'urgent',
+      med: 'warn',
+    };
+    const actionType: AiActionType = priorityToType[parsed.priority] || 'info';
+    const actionTypeLabel: Record<AiActionType, string> = {
+      urgent: 'Urgente',
+      warn: 'Attenzione',
+      info: 'Informazione',
+      soft: 'Suggerimento',
+    };
+
+    for (const pa of proposedActions) {
+      try {
+        await aiActionRepository.create({
+          user_id: userId,
+          message_id: messageId,
+          type: actionType,
+          type_label: actionTypeLabel[actionType],
+          title: pa.title,
+          description: pa.description,
+          primary_button_label: 'Crea pratica',
+          primary_button_color: null,
+          secondary_button_label: 'Ignora',
+          action_type: pa.action_type || null,
+          from_name: message.from_name || null,
+          from_email: message.from_email || null,
+          from_phone: message.from_phone || null,
+          is_dismissed: false,
+          is_completed: false,
+        });
+      } catch (err: any) {
+        console.error(`[analyzeMessage] Failed to create ai_action:`, err.message);
+      }
+    }
+
+    return analysis;
   },
 };
