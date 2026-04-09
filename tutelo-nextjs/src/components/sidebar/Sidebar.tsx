@@ -1,7 +1,8 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   AiChat02Icon,
@@ -9,48 +10,39 @@ import {
   InboxIcon,
   Link01Icon,
   Logout01Icon,
+  ArrowDown01Icon,
+  Add01Icon,
 } from '@hugeicons/core-free-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './sidebar.module.scss';
 
-const NAV_ITEMS = [
-  { section: 'Principale', items: [
-    { href: '/assistente', label: 'Assistant', icon: AiChat02Icon },
-    { href: '/agenti', label: 'Workflows', icon: WorkflowCircle01Icon },
-  ]},
-  { section: 'Collegamenti', items: [
-    { href: '/dashboard', label: 'Inbox', icon: InboxIcon },
-    { href: '/canali', label: 'Canali collegati', icon: Link01Icon },
-  ]},
-];
+interface Conversation {
+  id: string;
+  title: string;
+  updated_at: string;
+}
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { profile, userInitials, userEmail, logout } = useAuth();
+  const [convOpen, setConvOpen] = useState(true);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+
+  useEffect(() => {
+    fetch('/api/messages')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.conversations) setConversations(data.conversations);
+      })
+      .catch(() => {});
+  }, [pathname]); // refetch when navigating
+
+  const isAssistantActive = pathname === '/assistente' || pathname.startsWith('/assistente/');
 
   return (
     <aside className={styles.sidebar}>
       <div className={styles.sidebarLogo}>
-        <svg width="26" height="26" viewBox="0 0 72 72" fill="none">
-          <defs>
-            <linearGradient id="sl1" x1="0" y1="0" x2="72" y2="72" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#3A82D4" />
-              <stop offset="100%" stopColor="#5BAAFF" />
-            </linearGradient>
-          </defs>
-          <circle cx="17" cy="18" r="11" fill="url(#sl1)" />
-          <circle cx="55" cy="18" r="11" fill="url(#sl1)" />
-          <circle cx="17" cy="18" r="6" fill="white" opacity="0.15" />
-          <circle cx="55" cy="18" r="6" fill="white" opacity="0.15" />
-          <ellipse cx="36" cy="44" rx="28" ry="26" fill="url(#sl1)" />
-          <circle cx="26" cy="40" r="5" fill="white" opacity="0.95" />
-          <circle cx="46" cy="40" r="5" fill="white" opacity="0.95" />
-          <circle cx="26" cy="40" r="2.5" fill="#1A3A6B" />
-          <circle cx="46" cy="40" r="2.5" fill="#1A3A6B" />
-          <circle cx="27.5" cy="38.5" r="1" fill="white" opacity="0.8" />
-          <circle cx="47.5" cy="38.5" r="1" fill="white" opacity="0.8" />
-          <ellipse cx="36" cy="51" rx="5.5" ry="4" fill="white" opacity="0.6" />
-        </svg>
         <div>
           <div className={styles.logoName}>
             tutelo<span className={styles.logoAi}>.ai</span>
@@ -59,24 +51,88 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {NAV_ITEMS.map((section) => (
-        <div key={section.section} className={styles.sidebarSection}>
-          <div className={styles.sidebarSectionLabel}>{section.section}</div>
-          {section.items.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`${styles.navItem} ${isActive ? styles.active : ''}`}
+      <div className={styles.sidebarSection}>
+        <button
+          className={styles.newChatBtn}
+          onClick={() => router.push('/assistente')}
+          title="Nuova chat"
+        >
+          <HugeiconsIcon icon={Add01Icon} size={16} color="currentColor" strokeWidth={2} />
+          <span>Nuova chat</span>
+        </button>
+
+        <div className={styles.sidebarSectionLabel}>Principale</div>
+
+        {/* Assistant with collapsable conversations */}
+        <div className={styles.navGroup}>
+          <Link
+            href="/assistente"
+            className={`${styles.navItem} ${styles.navItemExpandable} ${isAssistantActive ? styles.active : ''}`}
+          >
+            <HugeiconsIcon icon={AiChat02Icon} size={18} color="currentColor" strokeWidth={1.5} />
+            <span className={styles.navItemLabel}>Assistant</span>
+            {conversations.length > 0 && (
+              <button
+                className={`${styles.collapseBtn} ${convOpen ? styles.open : ''}`}
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConvOpen((v) => !v); }}
+                title={convOpen ? 'Nascondi chat' : 'Mostra chat'}
               >
-                <HugeiconsIcon icon={item.icon} size={18} color="currentColor" strokeWidth={1.5} />
-                {item.label}
-              </Link>
-            );
-          })}
+                <HugeiconsIcon
+                  icon={ArrowDown01Icon}
+                  size={12}
+                  color="currentColor"
+                  strokeWidth={2}
+                />
+              </button>
+            )}
+          </Link>
+
+          {conversations.length > 0 && (
+            <div className={`${styles.convListWrapper} ${convOpen ? styles.open : ''}`}>
+              <div className={styles.convListInner}>
+                <div className={styles.convList}>
+                  {conversations.slice(0, 15).map((conv) => (
+                    <Link
+                      key={conv.id}
+                      href={`/assistente/${conv.id}`}
+                      className={`${styles.convItem} ${pathname === `/assistente/${conv.id}` ? styles.active : ''}`}
+                      title={conv.title || 'Chat senza titolo'}
+                    >
+                      <span className={styles.convItemText}>{conv.title || 'Chat senza titolo'}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      ))}
+
+        <Link
+          href="/agenti"
+          className={`${styles.navItem} ${pathname === '/agenti' || pathname.startsWith('/agenti/') ? styles.active : ''}`}
+        >
+          <HugeiconsIcon icon={WorkflowCircle01Icon} size={18} color="currentColor" strokeWidth={1.5} />
+          Workflows
+        </Link>
+      </div>
+
+      <div className={styles.sidebarSection}>
+        <div className={styles.sidebarSectionLabel}>Collegamenti</div>
+        <Link
+          href="/dashboard"
+          className={`${styles.navItem} ${pathname === '/dashboard' || pathname.startsWith('/dashboard/') ? styles.active : ''}`}
+        >
+          <HugeiconsIcon icon={InboxIcon} size={18} color="currentColor" strokeWidth={1.5} />
+          Inbox
+        </Link>
+        <Link
+          href="/canali"
+          className={`${styles.navItem} ${pathname === '/canali' || pathname.startsWith('/canali/') ? styles.active : ''}`}
+        >
+          <HugeiconsIcon icon={Link01Icon} size={18} color="currentColor" strokeWidth={1.5} />
+          Canali collegati
+        </Link>
+      </div>
 
       <div className={styles.sidebarFooter}>
         <div className={styles.userRow}>

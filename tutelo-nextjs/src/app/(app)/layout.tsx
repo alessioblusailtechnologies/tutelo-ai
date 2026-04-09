@@ -15,13 +15,14 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     }
   }, [hydrated, isAuthenticated, router]);
 
-  // Don't render anything until localStorage has been read
   if (!hydrated || !isAuthenticated) return null;
 
   return (
     <>
       <Sidebar />
-      <main style={{ marginLeft: 240, flex: 1, minHeight: '100vh' }}>{children}</main>
+      <main style={{ marginLeft: 240, flex: 1, display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        {children}
+      </main>
     </>
   );
 }
