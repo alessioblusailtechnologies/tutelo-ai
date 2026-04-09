@@ -1,0 +1,240 @@
+.assistantPage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #E8EDF5 0%, #F4F7FB 100%);
+  padding: 40px 24px;
+}
+
+.assistantContainer {
+  width: 100%;
+  max-width: 860px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+// Greeting
+.greetingSection {
+  text-align: center;
+}
+
+.greetingTitle {
+  font-family: var(--font-playfair), 'Playfair Display', serif;
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 10px;
+  letter-spacing: -0.8px;
+  line-height: 1.15;
+}
+
+.greetingSubtitle {
+  font-size: 15px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+// Input box
+.inputSection {
+  width: 100%;
+}
+
+.inputBox {
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 2px 24px rgba(27, 61, 111, 0.08);
+  border: 1px solid rgba(27, 61, 111, 0.06);
+  padding: 16px 18px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: box-shadow 0.2s;
+
+  &:focus-within {
+    box-shadow: 0 4px 32px rgba(27, 61, 111, 0.13);
+    border-color: rgba(37, 99, 176, 0.15);
+  }
+}
+
+.chatInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 15px;
+  color: var(--text);
+  resize: none;
+  line-height: 1.5;
+  min-height: 24px;
+  max-height: 120px;
+  background: transparent;
+
+  &::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+  }
+}
+
+.inputActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.inputActionsLeft {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.15s;
+
+  &:hover {
+    background: var(--bg-light);
+    color: var(--text);
+  }
+
+  svg {
+    display: flex;
+    align-items: center;
+  }
+}
+
+.sendBtn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: #D5DDE8;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &.active {
+    background: var(--navy);
+  }
+
+  &.active:hover {
+    background: var(--navy-mid);
+  }
+
+  svg {
+    display: flex;
+    align-items: center;
+  }
+}
+
+// Quick action chips
+.quickActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(27, 61, 111, 0.1);
+  background: var(--white);
+  color: var(--text);
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 1px 4px rgba(27, 61, 111, 0.04);
+
+  &:hover {
+    background: var(--bg-light);
+    border-color: rgba(27, 61, 111, 0.18);
+    box-shadow: 0 2px 8px rgba(27, 61, 111, 0.08);
+  }
+
+  svg {
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+  }
+}
+
+// Suggestion cards
+.suggestions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  width: 100%;
+}
+
+.suggestionCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px 20px;
+  background: var(--white);
+  border: 1px solid rgba(27, 61, 111, 0.06);
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  box-shadow: 0 2px 16px rgba(27, 61, 111, 0.05);
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
+
+  &:hover {
+    box-shadow: 0 4px 24px rgba(27, 61, 111, 0.1);
+    border-color: rgba(27, 61, 111, 0.12);
+  }
+}
+
+.suggestionIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: #E8F0FE;
+  color: var(--blue);
+}
+
+.suggestionContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.suggestionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.suggestionDesc {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
