@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { HugeiconsIconComponent } from '@hugeicons/angular';
-import { DashboardBrowsingIcon, Folder01Icon, AiBrain01Icon, Link01Icon, Logout01Icon } from '@hugeicons/core-free-icons';
+import { AiChat02Icon, InboxIcon, WorkflowCircle01Icon, Link01Icon, Logout01Icon } from '@hugeicons/core-free-icons';
 import { AuthService } from '../../core/services/auth.service';
 
 @Component({
@@ -17,9 +17,9 @@ export class SidebarComponent {
   readonly initials = this.authService.userInitials;
   readonly email = this.authService.userEmail;
 
-  readonly DashboardBrowsingIcon = DashboardBrowsingIcon;
-  readonly Folder01Icon = Folder01Icon;
-  readonly AiBrain01Icon = AiBrain01Icon;
+  readonly AiChat02Icon = AiChat02Icon;
+  readonly InboxIcon = InboxIcon;
+  readonly WorkflowCircle01Icon = WorkflowCircle01Icon;
   readonly Link01Icon = Link01Icon;
   readonly Logout01Icon = Logout01Icon;
 

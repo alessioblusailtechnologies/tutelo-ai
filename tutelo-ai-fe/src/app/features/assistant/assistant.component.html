@@ -1,0 +1,75 @@
+<div class="assistant-page">
+  <div class="assistant-container">
+    <div class="greeting-section">
+      <h1 class="greeting-title">{{ greeting() }}, {{ userName() }}</h1>
+      <p class="greeting-subtitle">Il tuo assistente assicurativo è pronto. Come posso aiutarti oggi?</p>
+    </div>
+
+    <div class="input-section">
+      <div class="input-box">
+        <textarea
+          class="chat-input"
+          placeholder="Come posso aiutarti oggi?"
+          [value]="message()"
+          (input)="onInput($event)"
+          (keydown)="onKeydown($event)"
+          rows="1"
+        ></textarea>
+        <div class="input-actions">
+          <div class="input-actions-left">
+            <button class="action-btn" (click)="onAttach()">
+              <hugeicons-icon [icon]="Attachment01Icon" [size]="16" color="currentColor" [strokeWidth]="1.5" />
+              <span>Allega</span>
+            </button>
+            <button class="action-btn" (click)="onWebSearch()">
+              <hugeicons-icon [icon]="Globe02Icon" [size]="16" color="currentColor" [strokeWidth]="1.5" />
+              <span>Ricerca Web</span>
+            </button>
+          </div>
+          <button
+            class="send-btn"
+            [class.active]="message().trim().length > 0"
+            (click)="onSend()"
+          >
+            <hugeicons-icon [icon]="ArrowUp02Icon" [size]="18" color="currentColor" [strokeWidth]="2" />
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      @for (action of quickActions; track action.label) {
+        <button class="chip" (click)="onQuickAction(action)">
+          <hugeicons-icon [icon]="action.icon" [size]="15" color="currentColor" [strokeWidth]="1.5" />
+          {{ action.label }}
+        </button>
+      }
+    </div>
+
+    <div class="suggestions">
+      @for (suggestion of suggestions; track suggestion.title) {
+        <button class="suggestion-card" (click)="onSuggestion(suggestion)">
+          <div class="suggestion-icon" [class]="suggestion.icon">
+            @if (suggestion.icon === 'document') {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L3 7v6c0 5.25 3.75 10.15 9 11.25C17.25 23.15 21 18.25 21 13V7l-9-5z"/>
+                <polyline points="9,12 11,14 15,10"/>
+              </svg>
+            } @else {
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                <polyline points="14,2 14,8 20,8"/>
+                <path d="M12 18v-6"/>
+                <path d="M12 9h.01"/>
+              </svg>
+            }
+          </div>
+          <div class="suggestion-content">
+            <div class="suggestion-title">{{ suggestion.title }}</div>
+            <div class="suggestion-desc">{{ suggestion.description }}</div>
+          </div>
+        </button>
+      }
+    </div>
+  </div>
+</div>

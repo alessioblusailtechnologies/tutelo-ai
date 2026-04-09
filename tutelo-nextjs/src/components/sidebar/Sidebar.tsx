@@ -2,67 +2,25 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  AiChat02Icon,
+  WorkflowCircle01Icon,
+  InboxIcon,
+  Link01Icon,
+  Logout01Icon,
+} from '@hugeicons/core-free-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './sidebar.module.scss';
 
-// Inline SVG icons to replace Hugeicons
-function AiChatIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12c0 1.6.376 3.112 1.043 4.453.178.356.237.763.134 1.148l-.595 2.226a1.3 1.3 0 0 0 1.591 1.591l2.226-.595a1.634 1.634 0 0 1 1.148.134A9.958 9.958 0 0 0 12 22Z" />
-      <path d="M8 10.5h8M8 14h5" />
-    </svg>
-  );
-}
-
-function WorkflowIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <circle cx="12" cy="12" r="10" />
-      <circle cx="12" cy="8" r="2" />
-      <circle cx="8" cy="16" r="2" />
-      <circle cx="16" cy="16" r="2" />
-      <path d="M12 10v2M10.5 14.5 11 13M13.5 14.5 13 13" />
-    </svg>
-  );
-}
-
-function InboxIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="3" />
-      <path d="M3 13h4.5a1.5 1.5 0 0 1 1.5 1.5v0a1.5 1.5 0 0 0 1.5 1.5h3a1.5 1.5 0 0 0 1.5-1.5v0a1.5 1.5 0 0 1 1.5-1.5H21" />
-    </svg>
-  );
-}
-
-function LinkIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-    </svg>
-  );
-}
-
-function LogoutIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-      <polyline points="16,17 21,12 16,7" />
-      <line x1="21" y1="12" x2="9" y2="12" />
-    </svg>
-  );
-}
-
 const NAV_ITEMS = [
   { section: 'Principale', items: [
-    { href: '/assistente', label: 'Assistant', icon: AiChatIcon },
-    { href: '/agenti', label: 'Workflows', icon: WorkflowIcon },
+    { href: '/assistente', label: 'Assistant', icon: AiChat02Icon },
+    { href: '/agenti', label: 'Workflows', icon: WorkflowCircle01Icon },
   ]},
   { section: 'Collegamenti', items: [
     { href: '/dashboard', label: 'Inbox', icon: InboxIcon },
-    { href: '/canali', label: 'Canali collegati', icon: LinkIcon },
+    { href: '/canali', label: 'Canali collegati', icon: Link01Icon },
   ]},
 ];
 
@@ -105,7 +63,6 @@ export default function Sidebar() {
         <div key={section.section} className={styles.sidebarSection}>
           <div className={styles.sidebarSectionLabel}>{section.section}</div>
           {section.items.map((item) => {
-            const Icon = item.icon;
             const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
             return (
               <Link
@@ -113,7 +70,7 @@ export default function Sidebar() {
                 href={item.href}
                 className={`${styles.navItem} ${isActive ? styles.active : ''}`}
               >
-                <Icon />
+                <HugeiconsIcon icon={item.icon} size={18} color="currentColor" strokeWidth={1.5} />
                 {item.label}
               </Link>
             );
@@ -129,7 +86,7 @@ export default function Sidebar() {
             <div className={styles.userEmail}>{userEmail}</div>
           </div>
           <button className={styles.logoutBtn} onClick={logout} title="Esci">
-            <LogoutIcon />
+            <HugeiconsIcon icon={Logout01Icon} size={16} color="currentColor" strokeWidth={1.5} />
           </button>
         </div>
       </div>

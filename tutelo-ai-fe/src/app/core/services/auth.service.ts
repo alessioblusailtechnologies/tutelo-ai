@@ -54,7 +54,7 @@ export class AuthService {
       localStorage.setItem(REFRESH_KEY, session.refresh_token);
       localStorage.setItem(USER_KEY, JSON.stringify(session.user));
       await this.loadProfile();
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/assistente']);
     } finally {
       this._loading.set(false);
     }

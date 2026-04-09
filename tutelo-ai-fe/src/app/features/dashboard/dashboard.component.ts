@@ -9,7 +9,7 @@ import { InboxComponent } from './components/inbox/inbox.component';
   imports: [TopbarComponent, AiActionsStripComponent, InboxComponent],
   template: `
     <app-topbar
-      title="Centro di Controllo"
+      title="Inbox"
       subtitle="Email · WhatsApp · classificazione automatica AI"
       ctaLabel="+ Nuova Pratica"
     />
