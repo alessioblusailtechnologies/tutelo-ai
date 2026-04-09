@@ -77,6 +77,10 @@ body {
   letter-spacing: 0.3px;
   text-transform: uppercase;
   flex-shrink: 0;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .pratica-tag.preventivo { background: var(--tag-preventivo-bg); color: var(--tag-preventivo); }
@@ -98,6 +102,10 @@ body {
   color: var(--blue);
   letter-spacing: 0.3px;
   text-transform: uppercase;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .priority-label {
@@ -107,6 +115,10 @@ body {
   text-transform: uppercase;
   padding: 2px 7px;
   border-radius: 20px;
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .priority-label.high { background: #FDECEA; color: #C0392B; }

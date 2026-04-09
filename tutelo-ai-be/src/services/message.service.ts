@@ -45,7 +45,7 @@ export const messageService = {
 5. La priorità: "high" (urgente), "med" (media) oppure null (normale)
 6. Un breve badge AI di 1-2 parole (es. "Sinistro auto", "Preventivo vita", "Rinnovo urgente")
 
-Rispondi in formato JSON con questa struttura:
+IMPORTANTE: Rispondi ESCLUSIVAMENTE con il JSON, senza testo aggiuntivo, senza blocchi di codice markdown, senza backtick. Solo il JSON puro con questa struttura:
 {
   "summary": "riassunto del messaggio con parti importanti in **bold**",
   "entities": [{"label": "Nome campo", "value": "valore"}],
@@ -53,23 +53,36 @@ Rispondi in formato JSON con questa struttura:
   "tag": "sinistro|preventivo|rinnovo|richiesta",
   "tag_label": "Sinistro|Preventivo|Rinnovo|Richiesta",
   "priority": "high|med|null",
-  "priority_label": "Urgente|Media priorità|null",
-  "ai_badge": "breve badge"
+  "priority_label": "Urgente|Media|null",
+  "ai_badge": "max 2 parole brevi (es. Sinistro auto, Prev. vita, Rinnovo RC)"
 }`,
       userPrompt: `Da: ${message.from_name}\nOggetto: ${message.subject}\n\n${message.body}`,
       model: 'claude-opus-4-6',
     });
 
     const generationTimeMs = Date.now() - start;
+
+    // Strip markdown code fences (```json ... ```) that LLMs sometimes add
+    let raw = response.content.trim();
+    const fenceMatch = raw.match(/^```(?:json)?\s*\n?([\s\S]*?)\n?\s*```$/);
+    if (fenceMatch) raw = fenceMatch[1].trim();
+
     let parsed;
     try {
-      parsed = JSON.parse(response.content);
+      parsed = JSON.parse(raw);
     } catch {
-      parsed = {
-        summary: response.content,
-        entities: [],
-        proposed_actions: [],
-      };
+      // Last resort: try to extract first JSON object from the response
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        try { parsed = JSON.parse(jsonMatch[0]); } catch { /* ignore */ }
+      }
+      if (!parsed) {
+        parsed = {
+          summary: response.content,
+          entities: [],
+          proposed_actions: [],
+        };
+      }
     }
 
     // Update message classification
@@ -82,7 +95,7 @@ Rispondi in formato JSON con questa struttura:
     }
     if (parsed.priority === 'high' || parsed.priority === 'med') {
       updateFields.priority = parsed.priority;
-      updateFields.priority_label = parsed.priority_label || (parsed.priority === 'high' ? 'Urgente' : 'Media priorità');
+      updateFields.priority_label = parsed.priority === 'high' ? 'Urgente' : 'Media';
     }
     if (parsed.ai_badge) {
       updateFields.ai_badge = parsed.ai_badge;
