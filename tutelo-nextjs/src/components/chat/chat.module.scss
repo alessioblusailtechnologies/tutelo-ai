@@ -70,6 +70,62 @@
 
 .chatBubbleContent {
   white-space: pre-wrap;
+
+  // Markdown rendering for assistant messages
+  p { margin: 0 0 8px; &:last-child { margin-bottom: 0; } }
+  h1, h2, h3, h4 {
+    font-weight: 600;
+    margin: 12px 0 6px;
+    &:first-child { margin-top: 0; }
+  }
+  h1 { font-size: 16px; }
+  h2 { font-size: 15px; }
+  h3 { font-size: 14px; }
+  ul, ol {
+    margin: 4px 0 8px;
+    padding-left: 20px;
+  }
+  li { margin-bottom: 3px; }
+  strong { font-weight: 600; }
+  code {
+    background: rgba(27, 61, 111, 0.06);
+    padding: 1px 5px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-family: monospace;
+  }
+  pre {
+    background: rgba(27, 61, 111, 0.05);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 8px 0;
+    overflow-x: auto;
+    code {
+      background: none;
+      padding: 0;
+    }
+  }
+  table {
+    border-collapse: collapse;
+    margin: 8px 0;
+    font-size: 13px;
+    width: 100%;
+  }
+  th, td {
+    border: 1px solid rgba(27, 61, 111, 0.1);
+    padding: 6px 10px;
+    text-align: left;
+  }
+  th {
+    background: rgba(27, 61, 111, 0.04);
+    font-weight: 600;
+  }
+  blockquote {
+    border-left: 3px solid var(--blue-light);
+    margin: 8px 0;
+    padding: 4px 12px;
+    color: var(--text-muted);
+  }
 }
 
 // Input pinned to bottom in chat mode

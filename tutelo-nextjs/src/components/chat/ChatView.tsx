@@ -12,6 +12,7 @@ import {
   FileSearchIcon,
   FolderSearchIcon,
 } from '@hugeicons/core-free-icons';
+import ReactMarkdown from 'react-markdown';
 import { useAuth } from '@/contexts/AuthContext';
 import Topbar, { type BreadcrumbItem } from '@/components/topbar/Topbar';
 import styles from './chat.module.scss';
@@ -57,51 +58,6 @@ const examples: ExampleCard[] = [
     prompt: 'Cerca tutti i documenti relativi al cliente Bianchi Luigi degli ultimi 6 mesi',
   },
 ];
-
-// --- Bot replies ---
-
-const BOT_REPLIES_BY_TOPIC: Record<string, string[]> = {
-  preventiv: [
-    'Ho trovato 3 compagnie con tariffe competitive per questo profilo. La migliore è Generali con un premio annuo di €420. Vuoi che prepari il preventivo dettagliato?',
-    'Sto elaborando il preventivo. In base ai dati forniti, la classe di merito e il tipo di veicolo, il range stimato è tra €380 e €520 annui. Procedo con il confronto tra compagnie?',
-    'Preventivo generato! RC Auto base: €395/anno con Unipol. Posso aggiungere coperture accessorie come furto/incendio o kasko?',
-  ],
-  sinistro: [
-    'Ho registrato l\'apertura del sinistro. Ti servono i moduli CID/CAI da compilare? Posso anche verificare la copertura della polizza coinvolta.',
-    'Per procedere con la gestione del sinistro ho bisogno di: data dell\'evento, luogo, descrizione dinamica e dati della controparte. Vuoi che ti guidi passo passo?',
-    'Sinistro registrato con numero pratica #SIN-2024-0847. Ho già avviato la verifica delle coperture attive. Ti aggiorno appena ho riscontro dalla compagnia.',
-  ],
-  polizza: [
-    'Ho analizzato il documento. La polizza copre RC con massimale €6M, include tutela legale e assistenza stradale. Scadenza: 15/09/2025. Vuoi un riepilogo completo?',
-    'Dalla polizza emergono le seguenti coperture: RC obbligatoria, furto/incendio (franchigia €500), cristalli. Manca la copertura kasko. Vuoi che verifichi alternative?',
-  ],
-  document: [
-    'Ho trovato 12 documenti corrispondenti ai criteri di ricerca. I più recenti sono: polizza auto n. 4521, quietanza di rinnovo e certificato di rischio. Quale vuoi aprire?',
-    'Ricerca completata. Trovati 5 documenti per il cliente richiesto: 2 polizze attive, 1 sinistro chiuso, 2 quietanze. Vuoi il dettaglio di uno specifico?',
-  ],
-  analisi: [
-    'Ho analizzato le pratiche in corso. Ci sono 4 pratiche con scadenza entro 30 giorni e 2 sinistri in attesa di documentazione. Vuoi che ti prepari un riepilogo prioritario?',
-    'L\'analisi delle pratiche mostra: 15 polizze in scadenza questo mese, 3 sinistri aperti, 7 rinnovi automatici confermati. Posso generare il report dettagliato.',
-  ],
-};
-
-const BOT_REPLIES_GENERIC = [
-  'Certo, posso aiutarti con questo. Dammi un momento per verificare le informazioni nel sistema.',
-  'Ho preso in carico la tua richiesta. Sto consultando l\'archivio per fornirti le informazioni più aggiornate.',
-  'Ottima domanda! Lascami controllare i dati disponibili e ti rispondo subito con tutti i dettagli.',
-  'Sto elaborando la tua richiesta. Nel frattempo, hai bisogno di altre informazioni su polizze o pratiche in corso?',
-  'Ricevuto! Ho verificato nel sistema e posso procedere. Vuoi che ti invii anche un riepilogo via email?',
-];
-
-function pickBotReply(userMessage: string): string {
-  const lower = userMessage.toLowerCase();
-  for (const [keyword, replies] of Object.entries(BOT_REPLIES_BY_TOPIC)) {
-    if (lower.includes(keyword)) {
-      return replies[Math.floor(Math.random() * replies.length)];
-    }
-  }
-  return BOT_REPLIES_GENERIC[Math.floor(Math.random() * BOT_REPLIES_GENERIC.length)];
-}
 
 // --- Types ---
 
@@ -166,79 +122,93 @@ export default function ChatView({ initialConversationId }: ChatViewProps) {
     if (!content.trim() || sending) return;
     setSending(true);
 
-    const tempMsg: ChatMessage = {
+    // Add user message optimistically
+    const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
       role: 'user',
       content: content.trim(),
       created_at: new Date().toISOString(),
     };
-    setChatMessages((prev) => [...prev, tempMsg]);
+    setChatMessages((prev) => [...prev, userMsg]);
     setMessage('');
 
-    let activeConvId = conversationId;
+    // Add empty assistant message for streaming
+    const botId = crypto.randomUUID();
+    setChatMessages((prev) => [
+      ...prev,
+      { id: botId, role: 'assistant', content: '', created_at: new Date().toISOString() },
+    ]);
 
     try {
-      const res = await fetch('/api/messages', {
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           conversation_id: conversationId,
-          content: content.trim(),
-          role: 'user',
+          message: content.trim(),
           user_id: profile?.id || null,
         }),
       });
-      const data = await res.json();
-      if (data.conversation_id) {
-        activeConvId = data.conversation_id;
-        setConversationId(data.conversation_id);
-        if (!initialConversationId) {
-          router.replace(`/assistente/${data.conversation_id}`);
+
+      if (!res.ok) throw new Error('Errore nella risposta');
+
+      const reader = res.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (reader) {
+        let buffer = '';
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            try {
+              const data = JSON.parse(line.slice(6));
+              if (data.type === 'text') {
+                setChatMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === botId ? { ...m, content: m.content + data.content } : m,
+                  ),
+                );
+                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+              } else if (data.type === 'done' && data.conversation_id) {
+                if (!conversationId) {
+                  setConversationId(data.conversation_id);
+                  if (!initialConversationId) {
+                    router.replace(`/assistente/${data.conversation_id}`);
+                  }
+                }
+              } else if (data.type === 'error') {
+                setChatMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === botId ? { ...m, content: `⚠ ${data.content}` } : m,
+                  ),
+                );
+              }
+            } catch {
+              // Skip malformed JSON
+            }
+          }
         }
-      }
-      if (data.message) {
-        setChatMessages((prev) =>
-          prev.map((m) => (m.id === tempMsg.id ? data.message : m)),
-        );
       }
     } catch {
-      // Keep the optimistic message
+      setChatMessages((prev) =>
+        prev.map((m) =>
+          m.id === botId
+            ? { ...m, content: 'Mi dispiace, si è verificato un errore. Riprova.' }
+            : m,
+        ),
+      );
+    } finally {
+      setSending(false);
+      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
     }
-
-    setTimeout(async () => {
-      const botReply = pickBotReply(content.trim());
-      const tempBot: ChatMessage = {
-        id: crypto.randomUUID(),
-        role: 'assistant',
-        content: botReply,
-        created_at: new Date().toISOString(),
-      };
-      setChatMessages((prev) => [...prev, tempBot]);
-
-      try {
-        const res = await fetch('/api/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            conversation_id: activeConvId,
-            content: botReply,
-            role: 'assistant',
-          }),
-        });
-        const data = await res.json();
-        if (data.message) {
-          setChatMessages((prev) =>
-            prev.map((m) => (m.id === tempBot.id ? data.message : m)),
-          );
-        }
-      } catch {
-        // Keep optimistic bot message
-      } finally {
-        setSending(false);
-        setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
-      }
-    }, 800 + Math.random() * 700);
-  }, [sending, conversationId, profile]);
+  }, [sending, conversationId, profile, initialConversationId, router]);
 
   const onSend = useCallback(() => {
     sendMessage(message);
@@ -293,7 +263,13 @@ export default function ChatView({ initialConversationId }: ChatViewProps) {
             <div className={styles.chatArea}>
               {chatMessages.map((msg) => (
                 <div key={msg.id} className={`${styles.chatBubble} ${styles[msg.role]}`}>
-                  <div className={styles.chatBubbleContent}>{msg.content}</div>
+                  <div className={styles.chatBubbleContent}>
+                    {msg.role === 'assistant' ? (
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    ) : (
+                      msg.content
+                    )}
+                  </div>
                 </div>
               ))}
               <div ref={messagesEndRef} />
