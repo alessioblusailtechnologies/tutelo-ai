@@ -77,21 +77,39 @@ interface ChatMessage {
 }
 
 const TOOL_LABELS: Record<string, string> = {
-  cercaPersona: 'Sto cercando la persona nel sistema',
-  getPersona: 'Sto recuperando i dettagli della persona',
-  creaPersona: 'Sto creando la nuova persona',
-  aggiornaPersona: 'Sto aggiornando i dati della persona',
-  creaPreventivo: 'Sto creando il preventivo',
-  getPreventivo: 'Sto recuperando il preventivo',
-  cercaPreventivi: 'Sto cercando i preventivi',
-  aggiornaPreventivo: 'Sto aggiornando il preventivo',
-  scrapaPreventivi: 'Sto interrogando le compagnie assicurative',
-  generaPdf: 'Sto generando il documento PDF',
-  inviaMail: 'Sto inviando l\'email',
+  cercaPersona: 'Ricerca anagrafica clienti',
+  contaPersone: 'Conteggio clienti in archivio',
+  getPersona: 'Recupero dati del cliente',
+  creaPersona: 'Registrazione nuovo cliente',
+  aggiornaPersona: 'Aggiornamento dati cliente',
+  eliminaPersona: 'Rimozione cliente dall\'archivio',
+  creaPreventivo: 'Creazione del preventivo',
+  getPreventivo: 'Recupero del preventivo',
+  cercaPreventivi: 'Ricerca preventivi',
+  contaPreventivi: 'Conteggio preventivi',
+  aggiornaPreventivo: 'Aggiornamento del preventivo',
+  eliminaPreventivo: 'Rimozione del preventivo',
+  scrapaPreventivi: 'Confronto compagnie assicurative',
+  generaPdf: 'Generazione del documento PDF',
+  inviaMail: 'Invio dell\'email',
 };
 
 function describeTool(toolName: string): string {
-  return TOOL_LABELS[toolName] || `Sto eseguendo ${toolName}`;
+  return TOOL_LABELS[toolName] || 'Elaborazione in corso';
+}
+
+const IDLE_PHRASES: readonly string[] = [
+  'Ragionamento in corso',
+  'Analisi della richiesta',
+  'Valutazione del contesto',
+  'Elaborazione delle informazioni',
+  'Preparazione della risposta',
+  'Connessione dei dati',
+];
+
+function randomIdlePhrase(exclude?: string | null): string {
+  const pool = exclude ? IDLE_PHRASES.filter((p) => p !== exclude) : IDLE_PHRASES;
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 interface ChatViewProps {
@@ -109,6 +127,7 @@ export default function ChatView({ initialConversationId }: ChatViewProps) {
   const [sending, setSending] = useState(false);
   const [streaming, setStreaming] = useState(false);
   const [thinkingStatus, setThinkingStatus] = useState<string | null>(null);
+  const isIdlePhraseRef = useRef(false);
   const [loading, setLoading] = useState(!!initialConversationId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -158,7 +177,21 @@ export default function ChatView({ initialConversationId }: ChatViewProps) {
     };
     setChatMessages((prev) => [...prev, userMsg]);
     setMessage('');
-    setThinkingStatus('Sto pensando');
+    // Scroll immediato in fondo appena il messaggio utente è in DOM
+    requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    });
+    isIdlePhraseRef.current = true;
+    setThinkingStatus(randomIdlePhrase());
+
+    // Rotation randomica delle frasi generiche finché lo stato è idle
+    // (non c'è un tool attivo). Si ferma automaticamente quando parte
+    // un tool o il testo inizia a fluire.
+    const idleRotationTimer = setInterval(() => {
+      if (isIdlePhraseRef.current) {
+        setThinkingStatus((prev) => randomIdlePhrase(prev));
+      }
+    }, 2200);
 
     const botId = crypto.randomUUID();
     setChatMessages((prev) => [
@@ -175,6 +208,28 @@ export default function ChatView({ initialConversationId }: ChatViewProps) {
     let displayedText = '';
     let streamDone = false;
     let doneConvId: string | null = null;
+
+    // Dopo un chunk di testo, se lo stream resta "quiet" per più di
+    // QUIET_MS (il modello sta ragionando prima di chiamare un tool o
+    // emettere altro testo), torna in modalità idle e fai ripartire
+    // la rotazione delle frasi generiche.
+    const QUIET_MS = 700;
+    let idleReturnTimer: ReturnType<typeof setTimeout> | null = null;
+    const cancelIdleReturn = () => {
+      if (idleReturnTimer) {
+        clearTimeout(idleReturnTimer);
+        idleReturnTimer = null;
+      }
+    };
+    const scheduleIdleReturn = () => {
+      cancelIdleReturn();
+      idleReturnTimer = setTimeout(() => {
+        if (!streamDone) {
+          isIdlePhraseRef.current = true;
+          setThinkingStatus(randomIdlePhrase());
+        }
+      }, QUIET_MS);
+    };
 
     // Layer 2: Typewriter loop — steady character consumption
     let lastTime = performance.now();
@@ -212,12 +267,15 @@ export default function ChatView({ initialConversationId }: ChatViewProps) {
       // Check if completely done
       if (streamDone && displayedText.length >= receivedText.length && displayedText.length === lastFlushedLen) {
         clearInterval(flushTimer);
+        clearInterval(idleRotationTimer);
+        cancelIdleReturn();
         cancelAnimationFrame(rafId);
         setChatMessages((prev) =>
           prev.map((m) => (m.id === botId ? { ...m, content: receivedText } : m)),
         );
         setStreaming(false);
         setSending(false);
+        isIdlePhraseRef.current = false;
         setThinkingStatus(null);
         if (doneConvId && !conversationId) {
           setConversationId(doneConvId);
@@ -264,8 +322,14 @@ export default function ChatView({ initialConversationId }: ChatViewProps) {
               const data = JSON.parse(line.slice(6));
               if (data.type === 'text') {
                 receivedText += data.content;
-                if (receivedText.length > 0) setThinkingStatus(null);
+                if (receivedText.length > 0) {
+                  isIdlePhraseRef.current = false;
+                  setThinkingStatus(null);
+                  scheduleIdleReturn();
+                }
               } else if (data.type === 'tool_call') {
+                cancelIdleReturn();
+                isIdlePhraseRef.current = false;
                 setThinkingStatus(describeTool(data.tool_name || ''));
               } else if (data.type === 'tool_result') {
                 // Keep the status visible briefly, will be cleared by next tool_call or text
@@ -364,9 +428,6 @@ export default function ChatView({ initialConversationId }: ChatViewProps) {
                             <span className={styles.thinkingDot} />
                             <span className={styles.thinkingText}>{thinkingStatus}</span>
                           </div>
-                        )}
-                        {isActiveStream && msg.content && !thinkingStatus && (
-                          <span className={styles.streamCursor} />
                         )}
                         {msg.attachments && msg.attachments.length > 0 && (
                           <div className={styles.attachmentsList}>
