@@ -50,6 +50,7 @@
   line-height: 1.55;
   word-wrap: break-word;
   flex-shrink: 0;
+  animation: fadeIn 0.25s ease;
 
   &.user {
     align-self: flex-end;
@@ -60,72 +61,196 @@
 
   &.assistant {
     align-self: flex-start;
+    max-width: 90%;
     background: var(--white);
     color: var(--text);
     border: 1px solid rgba(27, 61, 111, 0.08);
     box-shadow: 0 1px 8px rgba(27, 61, 111, 0.05);
     border-bottom-left-radius: 4px;
+    overflow: hidden;
   }
 }
 
 .chatBubbleContent {
-  white-space: pre-wrap;
+  // user messages use pre-wrap, assistant uses normal (markdown renderer handles formatting)
+}
 
-  // Markdown rendering for assistant messages
-  p { margin: 0 0 8px; &:last-child { margin-bottom: 0; } }
-  h1, h2, h3, h4 {
-    font-weight: 600;
-    margin: 12px 0 6px;
-    &:first-child { margin-top: 0; }
+.chatBubbleContentUser {
+  white-space: pre-wrap;
+}
+
+// Streaming state
+.streamingText {
+  white-space: pre-wrap;
+}
+
+// Thinking status (shown during tool calls)
+.thinkingStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: linear-gradient(90deg, rgba(37, 99, 176, 0.06), rgba(37, 99, 176, 0.02));
+  border-radius: 20px;
+  margin-top: 4px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+  animation: thinkingFadeIn 0.2s ease;
+}
+
+.thinkingDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue);
+  animation: thinkingPulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.thinkingText {
+  background: linear-gradient(90deg, var(--text-muted) 30%, var(--blue) 50%, var(--text-muted) 70%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: thinkingShimmer 2s linear infinite;
+}
+
+@keyframes thinkingFadeIn {
+  from { opacity: 0; transform: translateY(-2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes thinkingPulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+@keyframes thinkingShimmer {
+  0% { background-position: 200% center; }
+  100% { background-position: -200% center; }
+}
+
+// Attachments list under message
+.attachmentsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.attachmentItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-light);
+  border: 1px solid rgba(27, 61, 111, 0.08);
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--text);
+  transition: all 0.15s;
+  cursor: pointer;
+  max-width: 360px;
+
+  &:hover {
+    background: rgba(37, 99, 176, 0.06);
+    border-color: rgba(37, 99, 176, 0.2);
+    box-shadow: 0 2px 8px rgba(27, 61, 111, 0.06);
   }
-  h1 { font-size: 16px; }
-  h2 { font-size: 15px; }
-  h3 { font-size: 14px; }
-  ul, ol {
-    margin: 4px 0 8px;
-    padding-left: 20px;
+}
+
+.attachmentIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #C0392B, #E74C3C);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.attachmentInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.attachmentName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--navy);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.attachmentMeta {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.attachmentDownload {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+
+.attachmentItem:hover .attachmentDownload {
+  background: rgba(37, 99, 176, 0.1);
+  color: var(--blue);
+}
+
+.streamCursor {
+  display: inline-block;
+  width: 2px;
+  height: 14px;
+  background: var(--blue);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  animation: blink 0.8s step-end infinite;
+}
+
+.typingDots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+
+  span {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    opacity: 0.4;
+    animation: dotPulse 1.2s ease-in-out infinite;
+
+    &:nth-child(2) { animation-delay: 0.15s; }
+    &:nth-child(3) { animation-delay: 0.3s; }
   }
-  li { margin-bottom: 3px; }
-  strong { font-weight: 600; }
-  code {
-    background: rgba(27, 61, 111, 0.06);
-    padding: 1px 5px;
-    border-radius: 4px;
-    font-size: 13px;
-    font-family: monospace;
-  }
-  pre {
-    background: rgba(27, 61, 111, 0.05);
-    border-radius: 8px;
-    padding: 10px 12px;
-    margin: 8px 0;
-    overflow-x: auto;
-    code {
-      background: none;
-      padding: 0;
-    }
-  }
-  table {
-    border-collapse: collapse;
-    margin: 8px 0;
-    font-size: 13px;
-    width: 100%;
-  }
-  th, td {
-    border: 1px solid rgba(27, 61, 111, 0.1);
-    padding: 6px 10px;
-    text-align: left;
-  }
-  th {
-    background: rgba(27, 61, 111, 0.04);
-    font-weight: 600;
-  }
-  blockquote {
-    border-left: 3px solid var(--blue-light);
-    margin: 8px 0;
-    padding: 4px 12px;
-    color: var(--text-muted);
-  }
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dotPulse {
+  0%, 60%, 100% { opacity: 0.25; transform: scale(0.85); }
+  30% { opacity: 0.7; transform: scale(1); }
 }
 
 // Input pinned to bottom in chat mode

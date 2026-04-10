@@ -1,0 +1,138 @@
+.markdown {
+  font-size: 14px;
+  line-height: 1.6;
+  color: inherit;
+}
+
+// Typography
+.p { margin: 0 0 8px; &:last-child { margin-bottom: 0; } }
+.h2 { font-size: 16px; font-weight: 700; color: var(--navy); margin: 16px 0 8px; &:first-child { margin-top: 0; } }
+.h3 { font-size: 15px; font-weight: 600; color: var(--navy); margin: 14px 0 6px; &:first-child { margin-top: 0; } }
+.h4 { font-size: 14px; font-weight: 600; color: var(--navy); margin: 12px 0 4px; &:first-child { margin-top: 0; } }
+.strong { font-weight: 600; }
+
+// Lists
+.ul, .ol { margin: 4px 0 10px; padding-left: 20px; }
+.li { margin-bottom: 4px; }
+
+// Code
+.codeInline {
+  background: rgba(27, 61, 111, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.pre {
+  background: rgba(27, 61, 111, 0.04);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 10px 0;
+  overflow-x: auto;
+}
+
+.codeBlock {
+  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+// Blockquote
+.blockquote {
+  border-left: 3px solid var(--blue-light);
+  margin: 10px 0;
+  padding: 6px 14px;
+  color: var(--text-muted);
+  background: rgba(37, 99, 176, 0.03);
+  border-radius: 0 8px 8px 0;
+}
+
+.hr {
+  border: none;
+  border-top: 1px solid rgba(27, 61, 111, 0.08);
+  margin: 14px 0;
+}
+
+// Tables
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin: 12px 0;
+  border-radius: 12px;
+  border: 1px solid rgba(27, 61, 111, 0.08);
+  background: white;
+  box-shadow: 0 1px 6px rgba(27, 61, 111, 0.04);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.thead {
+  background: var(--bg-light);
+}
+
+.th {
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  border-bottom: 1px solid rgba(27, 61, 111, 0.08);
+}
+
+.tr {
+  transition: background 0.1s;
+
+  &:hover {
+    background: rgba(37, 99, 176, 0.02);
+  }
+
+  &:not(:last-child) .td {
+    border-bottom: 1px solid rgba(27, 61, 111, 0.05);
+  }
+}
+
+.td {
+  padding: 10px 14px;
+  color: var(--text);
+  vertical-align: middle;
+}
+
+// Company cell with logo
+.companyCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.companyLogo {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.companyName {
+  font-weight: 500;
+  color: var(--navy);
+}
+
+// Money cell
+.moneyCell {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--navy);
+}

@@ -12,8 +12,8 @@ import {
   FileSearchIcon,
   FolderSearchIcon,
 } from '@hugeicons/core-free-icons';
-import ReactMarkdown from 'react-markdown';
 import { useAuth } from '@/contexts/AuthContext';
+import MarkdownRenderer from './MarkdownRenderer';
 import Topbar, { type BreadcrumbItem } from '@/components/topbar/Topbar';
 import styles from './chat.module.scss';
 
@@ -61,11 +61,37 @@ const examples: ExampleCard[] = [
 
 // --- Types ---
 
+interface MessageAttachment {
+  type: 'pdf';
+  filename: string;
+  url: string;
+  pdf_id: string;
+}
+
 interface ChatMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
   created_at: string;
+  attachments?: MessageAttachment[];
+}
+
+const TOOL_LABELS: Record<string, string> = {
+  cercaPersona: 'Sto cercando la persona nel sistema',
+  getPersona: 'Sto recuperando i dettagli della persona',
+  creaPersona: 'Sto creando la nuova persona',
+  aggiornaPersona: 'Sto aggiornando i dati della persona',
+  creaPreventivo: 'Sto creando il preventivo',
+  getPreventivo: 'Sto recuperando il preventivo',
+  cercaPreventivi: 'Sto cercando i preventivi',
+  aggiornaPreventivo: 'Sto aggiornando il preventivo',
+  scrapaPreventivi: 'Sto interrogando le compagnie assicurative',
+  generaPdf: 'Sto generando il documento PDF',
+  inviaMail: 'Sto inviando l\'email',
+};
+
+function describeTool(toolName: string): string {
+  return TOOL_LABELS[toolName] || `Sto eseguendo ${toolName}`;
 }
 
 interface ChatViewProps {
@@ -81,6 +107,8 @@ export default function ChatView({ initialConversationId }: ChatViewProps) {
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(initialConversationId ?? null);
   const [sending, setSending] = useState(false);
+  const [streaming, setStreaming] = useState(false);
+  const [thinkingStatus, setThinkingStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(!!initialConversationId);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -122,7 +150,6 @@ export default function ChatView({ initialConversationId }: ChatViewProps) {
     if (!content.trim() || sending) return;
     setSending(true);
 
-    // Add user message optimistically
     const userMsg: ChatMessage = {
       id: crypto.randomUUID(),
       role: 'user',
@@ -131,14 +158,78 @@ export default function ChatView({ initialConversationId }: ChatViewProps) {
     };
     setChatMessages((prev) => [...prev, userMsg]);
     setMessage('');
+    setThinkingStatus('Sto pensando');
 
-    // Add empty assistant message for streaming
     const botId = crypto.randomUUID();
     setChatMessages((prev) => [
       ...prev,
       { id: botId, role: 'assistant', content: '', created_at: new Date().toISOString() },
     ]);
+    setStreaming(true);
 
+    // 3-layer streaming:
+    // Layer 1: SSE chunks → accumulate in receivedText (no React)
+    // Layer 2: Typewriter → consumes receivedText char-by-char at steady speed into displayedText
+    // Layer 3: Flush → pushes displayedText to React state every 150ms for markdown rendering
+    let receivedText = '';
+    let displayedText = '';
+    let streamDone = false;
+    let doneConvId: string | null = null;
+
+    // Layer 2: Typewriter loop — steady character consumption
+    let lastTime = performance.now();
+    const CHARS_PER_MS = 0.4; // ~400 chars/sec — fast but smooth
+    let rafId = 0;
+
+    const tick = (now: number) => {
+      const delta = now - lastTime;
+      lastTime = now;
+
+      if (displayedText.length < receivedText.length) {
+        const charsToAdd = Math.max(1, Math.floor(delta * CHARS_PER_MS));
+        const end = Math.min(displayedText.length + charsToAdd, receivedText.length);
+        displayedText = receivedText.slice(0, end);
+      }
+
+      if (!streamDone || displayedText.length < receivedText.length) {
+        rafId = requestAnimationFrame(tick);
+      }
+    };
+    rafId = requestAnimationFrame(tick);
+
+    // Layer 3: Flush to React state at throttled interval
+    let lastFlushedLen = 0;
+    const flushTimer = setInterval(() => {
+      if (displayedText.length > lastFlushedLen) {
+        lastFlushedLen = displayedText.length;
+        const snapshot = displayedText;
+        setChatMessages((prev) =>
+          prev.map((m) => (m.id === botId ? { ...m, content: snapshot } : m)),
+        );
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+
+      // Check if completely done
+      if (streamDone && displayedText.length >= receivedText.length && displayedText.length === lastFlushedLen) {
+        clearInterval(flushTimer);
+        cancelAnimationFrame(rafId);
+        setChatMessages((prev) =>
+          prev.map((m) => (m.id === botId ? { ...m, content: receivedText } : m)),
+        );
+        setStreaming(false);
+        setSending(false);
+        setThinkingStatus(null);
+        if (doneConvId && !conversationId) {
+          setConversationId(doneConvId);
+          if (!initialConversationId) {
+            router.replace(`/assistente/${doneConvId}`);
+          }
+        }
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 150);
+
+    // Layer 1: SSE reader — just accumulates text
     try {
       const res = await fetch('/api/chat', {
         method: 'POST',
@@ -156,39 +247,38 @@ export default function ChatView({ initialConversationId }: ChatViewProps) {
       const decoder = new TextDecoder();
 
       if (reader) {
-        let buffer = '';
+        let sseBuffer = '';
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
 
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n\n');
-          buffer = lines.pop() || '';
+          sseBuffer += decoder.decode(value, { stream: true });
+          const lines = sseBuffer.split('\n\n');
+          sseBuffer = lines.pop() || '';
 
           for (const line of lines) {
             if (!line.startsWith('data: ')) continue;
             try {
               const data = JSON.parse(line.slice(6));
               if (data.type === 'text') {
+                receivedText += data.content;
+                if (receivedText.length > 0) setThinkingStatus(null);
+              } else if (data.type === 'tool_call') {
+                setThinkingStatus(describeTool(data.tool_name || ''));
+              } else if (data.type === 'tool_result') {
+                // Keep the status visible briefly, will be cleared by next tool_call or text
+              } else if (data.type === 'attachment') {
                 setChatMessages((prev) =>
                   prev.map((m) =>
-                    m.id === botId ? { ...m, content: m.content + data.content } : m,
+                    m.id === botId
+                      ? { ...m, attachments: [...(m.attachments || []), data.attachment] }
+                      : m,
                   ),
                 );
-                messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
               } else if (data.type === 'done' && data.conversation_id) {
-                if (!conversationId) {
-                  setConversationId(data.conversation_id);
-                  if (!initialConversationId) {
-                    router.replace(`/assistente/${data.conversation_id}`);
-                  }
-                }
+                doneConvId = data.conversation_id;
               } else if (data.type === 'error') {
-                setChatMessages((prev) =>
-                  prev.map((m) =>
-                    m.id === botId ? { ...m, content: `⚠ ${data.content}` } : m,
-                  ),
-                );
+                receivedText += `\n\nErrore: ${data.content}`;
               }
             } catch {
               // Skip malformed JSON
@@ -197,16 +287,9 @@ export default function ChatView({ initialConversationId }: ChatViewProps) {
         }
       }
     } catch {
-      setChatMessages((prev) =>
-        prev.map((m) =>
-          m.id === botId
-            ? { ...m, content: 'Mi dispiace, si è verificato un errore. Riprova.' }
-            : m,
-        ),
-      );
+      receivedText = receivedText || 'Mi dispiace, si è verificato un errore. Riprova.';
     } finally {
-      setSending(false);
-      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+      streamDone = true;
     }
   }, [sending, conversationId, profile, initialConversationId, router]);
 
@@ -261,17 +344,65 @@ export default function ChatView({ initialConversationId }: ChatViewProps) {
 
           {hasMessages && (
             <div className={styles.chatArea}>
-              {chatMessages.map((msg) => (
-                <div key={msg.id} className={`${styles.chatBubble} ${styles[msg.role]}`}>
-                  <div className={styles.chatBubbleContent}>
-                    {msg.role === 'assistant' ? (
-                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+              {chatMessages.map((msg, idx) => {
+                const isActiveStream = streaming && msg.role === 'assistant' && idx === chatMessages.length - 1;
+                return (
+                  <div key={msg.id} className={`${styles.chatBubble} ${styles[msg.role]}`}>
+                    {msg.role === 'user' ? (
+                      <div className={`${styles.chatBubbleContent} ${styles.chatBubbleContentUser}`}>
+                        {msg.content}
+                      </div>
                     ) : (
-                      msg.content
+                      <div className={styles.chatBubbleContent}>
+                        {msg.content ? (
+                          <MarkdownRenderer content={msg.content} />
+                        ) : null}
+                        {isActiveStream && thinkingStatus && (
+                          <div className={styles.thinkingStatus}>
+                            <span className={styles.thinkingDot} />
+                            <span className={styles.thinkingText}>{thinkingStatus}</span>
+                          </div>
+                        )}
+                        {isActiveStream && msg.content && !thinkingStatus && (
+                          <span className={styles.streamCursor} />
+                        )}
+                        {msg.attachments && msg.attachments.length > 0 && (
+                          <div className={styles.attachmentsList}>
+                            {msg.attachments.map((att, i) => (
+                              <a
+                                key={i}
+                                href={att.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                download={att.filename}
+                                className={styles.attachmentItem}
+                              >
+                                <div className={styles.attachmentIcon}>
+                                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                  </svg>
+                                </div>
+                                <div className={styles.attachmentInfo}>
+                                  <div className={styles.attachmentName}>{att.filename}</div>
+                                  <div className={styles.attachmentMeta}>PDF · Clicca per scaricare</div>
+                                </div>
+                                <div className={styles.attachmentDownload}>
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                  </svg>
+                                </div>
+                              </a>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
               <div ref={messagesEndRef} />
             </div>
           )}

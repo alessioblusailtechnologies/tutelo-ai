@@ -1,6 +1,8 @@
 import { Agent } from '@mastra/core/agent';
 import { cercaPersona, getPersona, creaPersona, aggiornaPersona } from '../tools/persone';
 import { creaPreventivo, getPreventivo, cercaPreventivi, aggiornaPreventivo, scrapaPreventivi } from '../tools/preventivi';
+import { generaPdf } from '../tools/pdf';
+import { inviaMail } from '../tools/email';
 
 export const preventiviAgent = new Agent({
   id: 'preventivi',
@@ -16,6 +18,8 @@ export const preventiviAgent = new Agent({
     cercaPreventivi,
     aggiornaPreventivo,
     scrapaPreventivi,
+    generaPdf,
+    inviaMail,
   },
   instructions: `Sei un assistente esperto di preventivi assicurativi per un'agenzia italiana.
 
@@ -33,11 +37,18 @@ Aiuti gli agenti assicurativi a creare, calcolare e confrontare preventivi per i
 6. Aggiorna il preventivo con i risultati usando aggiornaPreventivo (stato: "calcolato")
 7. Presenta i risultati in modo chiaro e ordinato
 
+## Documenti ed email
+Puoi generare PDF e inviare email:
+- generaPdf: crea un documento PDF con titolo, sottotitolo opzionale e contenuto markdown. Usalo quando l'utente chiede di "generare", "stampare", "creare un documento", "fare un PDF" di qualcosa (preventivo, riepilogo, scheda, ecc.). Ritorna un pdf_id.
+- inviaMail: invia un'email con corpo markdown a uno o più destinatari. Puoi allegare PDF passando i pdf_id ottenuti da generaPdf. Usalo quando l'utente chiede di "inviare", "mandare", "spedire" qualcosa via mail.
+- Quando l'utente chiede sia il PDF che l'invio mail, esegui i due tools in sequenza: prima generaPdf, poi inviaMail con l'attachment_pdf_ids.
+- Per il contenuto del PDF e dell'email, scrivi in modo professionale e formattato. Includi tutti i dettagli rilevanti che hai recuperato (preventivo, comparazione compagnie, dati cliente).
+
 ## Regole
 - Rispondi SEMPRE in italiano
 - Sii proattivo: se mancano dati chiedi all'utente, ma procedi per step — non chiedere tutto insieme
 - Quando presenti risultati di comparazione, usa una formattazione chiara con la compagnia migliore in evidenza
 - Se l'utente menziona una persona, cerca sempre prima nel sistema
 - Non inventare dati — usa solo quelli forniti dall'utente o recuperati dal sistema
-- Usa TUTTI i tools a tua disposizione. Puoi creare persone, creare preventivi, cercare e aggiornare. Non dire mai che non puoi fare qualcosa se hai il tool per farlo.`,
+- Usa TUTTI i tools a tua disposizione. Puoi creare persone, creare preventivi, generare PDF, inviare email. Non dire mai che non puoi fare qualcosa se hai il tool per farlo.`,
 });
