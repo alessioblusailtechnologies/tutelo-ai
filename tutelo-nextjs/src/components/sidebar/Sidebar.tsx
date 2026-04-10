@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -12,6 +12,9 @@ import {
   Logout01Icon,
   ArrowDown01Icon,
   Add01Icon,
+  MoreVerticalIcon,
+  Delete02Icon,
+  UserGroupIcon,
 } from '@hugeicons/core-free-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './sidebar.module.scss';
@@ -28,14 +31,53 @@ export default function Sidebar() {
   const { profile, userInitials, userEmail, logout } = useAuth();
   const [convOpen, setConvOpen] = useState(true);
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    if (!openMenuId) return;
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [openMenuId]);
+
+  const deleteConversation = async (id: string) => {
+    setOpenMenuId(null);
+    const wasActive = pathname === `/assistente/${id}`;
+    // Optimistic remove
+    setConversations((prev) => prev.filter((c) => c.id !== id));
+    try {
+      await fetch(`/api/conversations/${id}`, { method: 'DELETE' });
+      if (wasActive) router.push('/assistente');
+    } catch {
+      // On error, refetch to restore
+      const res = await fetch('/api/messages');
+      const data = await res.json();
+      if (data.conversations) setConversations(data.conversations);
+    }
+  };
 
   useEffect(() => {
-    fetch('/api/messages')
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.conversations) setConversations(data.conversations);
-      })
-      .catch(() => {});
+    const fetchConvs = () => {
+      fetch('/api/messages')
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.conversations) setConversations(data.conversations);
+        })
+        .catch(() => {});
+    };
+
+    fetchConvs();
+
+    // Listen for conversation updates (e.g. when titler agent updates the title)
+    const handler = () => fetchConvs();
+    window.addEventListener('tutelo:conversations-updated', handler);
+    return () => window.removeEventListener('tutelo:conversations-updated', handler);
   }, [pathname]); // refetch when navigating
 
   const isAssistantActive = pathname === '/assistente' || pathname.startsWith('/assistente/');
@@ -91,16 +133,50 @@ export default function Sidebar() {
             <div className={`${styles.convListWrapper} ${convOpen ? styles.open : ''}`}>
               <div className={styles.convListInner}>
                 <div className={styles.convList}>
-                  {conversations.slice(0, 15).map((conv) => (
-                    <Link
-                      key={conv.id}
-                      href={`/assistente/${conv.id}`}
-                      className={`${styles.convItem} ${pathname === `/assistente/${conv.id}` ? styles.active : ''}`}
-                      title={conv.title || 'Chat senza titolo'}
-                    >
-                      <span className={styles.convItemText}>{conv.title || 'Chat senza titolo'}</span>
-                    </Link>
-                  ))}
+                  {conversations.slice(0, 15).map((conv) => {
+                    const isActive = pathname === `/assistente/${conv.id}`;
+                    const isMenuOpen = openMenuId === conv.id;
+                    return (
+                      <div
+                        key={conv.id}
+                        className={`${styles.convItemWrapper} ${isMenuOpen ? styles.menuOpen : ''}`}
+                      >
+                        <Link
+                          href={`/assistente/${conv.id}`}
+                          className={`${styles.convItem} ${isActive ? styles.active : ''}`}
+                          title={conv.title || 'Chat senza titolo'}
+                        >
+                          <span className={styles.convItemText}>{conv.title || 'Chat senza titolo'}</span>
+                        </Link>
+                        <button
+                          className={styles.convMenuBtn}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setOpenMenuId((prev) => (prev === conv.id ? null : conv.id));
+                          }}
+                          title="Opzioni"
+                        >
+                          <HugeiconsIcon icon={MoreVerticalIcon} size={14} color="currentColor" strokeWidth={2} />
+                        </button>
+                        {isMenuOpen && (
+                          <div ref={menuRef} className={styles.convMenu}>
+                            <button
+                              className={styles.convMenuItem}
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                deleteConversation(conv.id);
+                              }}
+                            >
+                              <HugeiconsIcon icon={Delete02Icon} size={14} color="currentColor" strokeWidth={1.5} />
+                              Elimina
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -113,6 +189,17 @@ export default function Sidebar() {
         >
           <HugeiconsIcon icon={WorkflowCircle01Icon} size={18} color="currentColor" strokeWidth={1.5} />
           Workflows
+        </Link>
+      </div>
+
+      <div className={styles.sidebarSection}>
+        <div className={styles.sidebarSectionLabel}>Viste</div>
+        <Link
+          href="/clienti"
+          className={`${styles.navItem} ${pathname === '/clienti' || pathname.startsWith('/clienti/') ? styles.active : ''}`}
+        >
+          <HugeiconsIcon icon={UserGroupIcon} size={18} color="currentColor" strokeWidth={1.5} />
+          Clienti
         </Link>
       </div>
 

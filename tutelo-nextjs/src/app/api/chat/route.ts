@@ -11,13 +11,14 @@ export async function POST(req: NextRequest) {
   }
 
   let convId = conversation_id;
+  let titlerPromise: Promise<string | null> | null = null;
 
-  // If new conversation, create it
+  // If new conversation, create it with a placeholder title
   if (!convId) {
-    const title = message.slice(0, 80) + (message.length > 80 ? '...' : '');
+    const fallbackTitle = message.slice(0, 80) + (message.length > 80 ? '...' : '');
     const { data: conv, error: convErr } = await supabaseAdmin
       .from('tutelonxtjs_conversations')
-      .insert({ title, user_id: user_id || null })
+      .insert({ title: fallbackTitle, user_id: user_id || null })
       .select('id')
       .single();
 
@@ -25,6 +26,26 @@ export async function POST(req: NextRequest) {
       return Response.json({ error: convErr.message }, { status: 500 });
     }
     convId = conv.id;
+
+    // Start titler agent in parallel — we'll await before closing the stream
+    const newConvId = convId;
+    titlerPromise = (async () => {
+      try {
+        const titler = mastra.getAgent('titler');
+        const result = await titler.generate(message);
+        const generatedTitle = result.text?.trim().replace(/^["']|["']$/g, '').slice(0, 80);
+        if (generatedTitle && generatedTitle.length > 0) {
+          await supabaseAdmin
+            .from('tutelonxtjs_conversations')
+            .update({ title: generatedTitle })
+            .eq('id', newConvId);
+          return generatedTitle;
+        }
+      } catch {
+        // Keep fallback title on error
+      }
+      return null;
+    })();
   }
 
   // Save user message
@@ -130,7 +151,14 @@ export async function POST(req: NextRequest) {
             });
         }
 
-        send({ type: 'done', conversation_id: convId });
+        // Wait for the titler agent to finish (started in parallel)
+        // so the sidebar shows the smart title when refetching after navigation
+        let title: string | null = null;
+        if (titlerPromise) {
+          title = await titlerPromise;
+        }
+
+        send({ type: 'done', conversation_id: convId, title });
         controller.close();
       } catch (err: any) {
         const errorMsg = err?.message || 'Errore durante la generazione della risposta';

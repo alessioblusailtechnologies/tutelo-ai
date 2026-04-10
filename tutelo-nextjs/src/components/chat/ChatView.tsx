@@ -225,6 +225,8 @@ export default function ChatView({ initialConversationId }: ChatViewProps) {
             router.replace(`/assistente/${doneConvId}`);
           }
         }
+        // Notify sidebar to refetch conversations (for updated title)
+        window.dispatchEvent(new CustomEvent('tutelo:conversations-updated'));
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
       }
     }, 150);

@@ -1,0 +1,378 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  background: var(--bg);
+  min-height: calc(100vh - 48px);
+}
+
+.content {
+  flex: 1;
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+// Anagrafica header card
+.headerCard {
+  background: var(--white);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 6px rgba(27, 61, 111, 0.04);
+  padding: 24px 28px;
+  display: flex;
+  align-items: flex-start;
+  gap: 22px;
+}
+
+.bigAvatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563B0, #3A82D4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 24px;
+  font-weight: 600;
+  flex-shrink: 0;
+  box-shadow: 0 4px 14px rgba(37, 99, 176, 0.25);
+}
+
+.headerMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+
+.fullName {
+  font-family: var(--font-playfair), serif;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.1;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 11px;
+  border-radius: 20px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.statusLead { background: #FFF5E0; color: #B7660F; }
+.statusProspect { background: #EBF2FF; color: #2563B0; }
+.statusCliente { background: #E8F6EF; color: #1A7A4A; }
+.statusExCliente { background: rgba(27, 61, 111, 0.06); color: var(--text-muted); }
+
+.statusDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.cf {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.contactRow {
+  display: flex;
+  gap: 24px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.contactItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+
+  svg {
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+}
+
+.contactLabel {
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+
+.headerMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: right;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.fonteBadge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  background: rgba(27, 61, 111, 0.05);
+  color: var(--text-muted);
+  text-transform: capitalize;
+  align-self: flex-end;
+}
+
+// Tabs
+.tabsCard {
+  background: var(--white);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 6px rgba(27, 61, 111, 0.04);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.tabsBar {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-light);
+  padding: 0 8px;
+}
+
+.tab {
+  background: none;
+  border: none;
+  padding: 14px 18px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-family: inherit;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover {
+    color: var(--text);
+  }
+
+  &.active {
+    color: var(--blue);
+    font-weight: 600;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: -1px;
+      height: 2px;
+      background: var(--blue);
+      border-radius: 2px 2px 0 0;
+    }
+  }
+}
+
+.tabBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  background: rgba(27, 61, 111, 0.08);
+  color: var(--text-muted);
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.tab.active .tabBadge {
+  background: rgba(37, 99, 176, 0.15);
+  color: var(--blue);
+}
+
+.tabContent {
+  padding: 20px 24px;
+}
+
+// Preventivi list
+.preventiviList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.preventivoCard {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.15s;
+
+  &:hover {
+    border-color: rgba(37, 99, 176, 0.2);
+    box-shadow: 0 2px 8px rgba(27, 61, 111, 0.05);
+  }
+}
+
+.preventivoIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #EBF2FF, #DCE8FB);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--blue);
+  flex-shrink: 0;
+}
+
+.preventivoMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.preventivoHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.preventivoTipo {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.preventivoStato {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.statoBozza { background: rgba(27, 61, 111, 0.06); color: var(--text-muted); }
+.statoCalcolato { background: #EBF2FF; color: var(--blue); }
+.statoInviato { background: #FFF5E0; color: #B7660F; }
+.statoAccettato { background: #E8F6EF; color: #1A7A4A; }
+.statoRifiutato { background: #FDECEA; color: #C0392B; }
+
+.preventivoMeta {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.preventivoStats {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-shrink: 0;
+}
+
+.statBlock {
+  text-align: right;
+
+  .statLabel {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+
+  .statValue {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--navy);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .statSub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+}
+
+// Empty / loader
+.empty, .loader {
+  padding: 50px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.wipBlock {
+  padding: 50px 20px;
+  text-align: center;
+  color: var(--text-muted);
+
+  .wipIcon {
+    margin: 0 auto 12px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--bg-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-faint);
+  }
+
+  .wipTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 4px;
+  }
+
+  .wipSub {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+}
+
+.notFound {
+  padding: 80px 20px;
+  text-align: center;
+  color: var(--text-muted);
+
+  a {
+    color: var(--blue);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
