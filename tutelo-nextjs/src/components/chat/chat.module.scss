@@ -210,16 +210,6 @@
   color: var(--blue);
 }
 
-.streamCursor {
-  display: inline-block;
-  width: 2px;
-  height: 14px;
-  background: var(--blue);
-  margin-left: 2px;
-  vertical-align: text-bottom;
-  animation: blink 0.8s step-end infinite;
-}
-
 .typingDots {
   display: inline-flex;
   align-items: center;
@@ -237,10 +227,6 @@
     &:nth-child(2) { animation-delay: 0.15s; }
     &:nth-child(3) { animation-delay: 0.3s; }
   }
-}
-
-@keyframes blink {
-  50% { opacity: 0; }
 }
 
 @keyframes fadeIn {
