@@ -2,18 +2,22 @@
   font-size: 14px;
   line-height: 1.6;
   color: inherit;
+
+  // Margine coerente tra blocchi adiacenti; l'ultimo figlio non spinge mai giù
+  > *:last-child { margin-bottom: 0 !important; }
+  > *:first-child { margin-top: 0 !important; }
 }
 
 // Typography
-.p { margin: 0 0 8px; &:last-child { margin-bottom: 0; } }
-.h2 { font-size: 16px; font-weight: 700; color: var(--navy); margin: 16px 0 8px; &:first-child { margin-top: 0; } }
-.h3 { font-size: 15px; font-weight: 600; color: var(--navy); margin: 14px 0 6px; &:first-child { margin-top: 0; } }
-.h4 { font-size: 14px; font-weight: 600; color: var(--navy); margin: 12px 0 4px; &:first-child { margin-top: 0; } }
+.p { margin: 0 0 12px; &:last-child { margin-bottom: 0; } }
+.h2 { font-size: 16px; font-weight: 700; color: var(--navy); margin: 18px 0 8px; &:first-child { margin-top: 0; } }
+.h3 { font-size: 15px; font-weight: 600; color: var(--navy); margin: 16px 0 6px; &:first-child { margin-top: 0; } }
+.h4 { font-size: 14px; font-weight: 600; color: var(--navy); margin: 14px 0 4px; &:first-child { margin-top: 0; } }
 .strong { font-weight: 600; }
 
 // Lists
-.ul, .ol { margin: 4px 0 10px; padding-left: 20px; }
-.li { margin-bottom: 4px; }
+.ul, .ol { margin: 6px 0 12px; padding-left: 22px; }
+.li { margin-bottom: 6px; &:last-child { margin-bottom: 0; } }
 
 // Code
 .codeInline {

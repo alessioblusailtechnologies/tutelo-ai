@@ -3,6 +3,7 @@
 import { isValidElement, ReactNode } from 'react';
 import ReactMarkdown, { Components } from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import styles from './markdown.module.scss';
 
 // Recursively extract plain text from React children
@@ -112,7 +113,7 @@ const components: Components = {
 export default function MarkdownRenderer({ content }: { content: string }) {
   return (
     <div className={styles.markdown}>
-      <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>{content}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]} components={components}>{content}</ReactMarkdown>
     </div>
   );
 }

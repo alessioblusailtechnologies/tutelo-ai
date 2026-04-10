@@ -92,6 +92,12 @@ export async function POST(req: NextRequest) {
         });
 
         let fullText = '';
+        // Dopo una tool-call/tool-result il modello spesso riprende il testo
+        // senza inserire un separatore: il chunk viene concatenato direttamente
+        // alla coda del testo precedente ("...RC Auto!Ecco il dettaglio"). Qui
+        // forziamo un paragraph break (due newline) al primo text-delta
+        // successivo a ogni tool-activity, solo se non già presente.
+        let postToolBreakPending = false;
         const attachments: Array<{
           type: 'pdf';
           filename: string;
@@ -103,16 +109,27 @@ export async function POST(req: NextRequest) {
           const c = chunk as { type: string; payload?: Record<string, unknown> };
 
           if (c.type === 'text-delta') {
-            const text = (c.payload?.text as string) || '';
+            let text = (c.payload?.text as string) || '';
+            if (postToolBreakPending && text.length > 0) {
+              postToolBreakPending = false;
+              if (fullText.length > 0) {
+                const tailNewlines = (fullText.match(/\n*$/)?.[0] || '').length;
+                const headNewlines = (text.match(/^\n*/)?.[0] || '').length;
+                const missing = 2 - (tailNewlines + headNewlines);
+                if (missing > 0) text = '\n'.repeat(missing) + text;
+              }
+            }
             fullText += text;
             send({ type: 'text', content: text });
           } else if (c.type === 'tool-call') {
+            postToolBreakPending = true;
             send({
               type: 'tool_call',
               tool_name: c.payload?.toolName,
               tool_call_id: c.payload?.toolCallId,
             });
           } else if (c.type === 'tool-result') {
+            postToolBreakPending = true;
             const toolName = c.payload?.toolName as string;
             const result = c.payload?.result as Record<string, unknown> | undefined;
 

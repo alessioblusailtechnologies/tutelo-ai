@@ -34,9 +34,13 @@ Usalo quando l'utente chiede di generare un documento (preventivo, riepilogo, sc
     filename: z.string().optional().describe('Nome del file senza estensione (opzionale, default: derivato dal titolo)'),
   }),
   outputSchema: z.object({
-    pdf_id: z.string(),
-    url: z.string(),
-    filename: z.string(),
+    pdf_id: z.string().describe('Identificativo del PDF da riusare in inviaMail (attachment_pdf_ids)'),
+    url: z
+      .string()
+      .describe(
+        'URL interno del PDF. NON inserirlo mai nella risposta al cliente: il file viene già mostrato automaticamente come allegato scaricabile sotto il messaggio.',
+      ),
+    filename: z.string().describe('Nome del file generato'),
   }),
   execute: async (input) => {
     // Render PDF to buffer
