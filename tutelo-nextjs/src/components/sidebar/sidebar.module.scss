@@ -17,29 +17,22 @@
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
 }
 
 .logoName {
   font-family: var(--font-playfair), 'Playfair Display', serif;
-  font-size: 17px;
+  font-size: 22px;
   font-weight: 400;
   color: #EDF3FF;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.4px;
   line-height: 1;
 }
 
 .logoAi {
-  color: #7EB8FF;
-  opacity: 0.8;
+  color: var(--sky);
   font-weight: 300;
-}
-
-.logoTagline {
-  font-size: 7px;
-  letter-spacing: 2px;
-  color: rgba(255, 255, 255, 0.25);
-  margin-top: 3px;
+  margin-left: 1px;
 }
 
 .sidebarSection {

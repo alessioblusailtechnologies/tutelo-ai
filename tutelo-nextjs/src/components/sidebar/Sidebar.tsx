@@ -87,12 +87,9 @@ export default function Sidebar() {
   return (
     <aside className={styles.sidebar}>
       <div className={styles.sidebarLogo}>
-        <div>
-          <div className={styles.logoName}>
-            tutelo<span className={styles.logoAi}>.ai</span>
-          </div>
-          <div className={styles.logoTagline}>INTELLIGENZA ASSICURATIVA</div>
-        </div>
+        <span className={styles.logoName}>
+          tutelo<span className={styles.logoAi}>.ai</span>
+        </span>
       </div>
 
       <div className={styles.sidebarSection}>
