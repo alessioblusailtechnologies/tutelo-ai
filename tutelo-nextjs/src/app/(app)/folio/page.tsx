@@ -115,7 +115,6 @@ export default function FolioPage() {
               <h2 className={styles.sectionTitle}>
                 <HugeiconsIcon icon={FolderLibraryIcon} size={16} color="currentColor" strokeWidth={1.5} />
                 Caricamenti recenti
-                {!loading && <span className={styles.countBadge}>{files.length}</span>}
               </h2>
             </div>
 
@@ -130,7 +129,7 @@ export default function FolioPage() {
               </div>
             ) : (
               <div className={styles.filesGrid}>
-                {files.map((f) => (
+                {files.slice(0, 3).map((f) => (
                   <a
                     key={f.path}
                     href={f.url}
@@ -158,6 +157,73 @@ export default function FolioPage() {
               </div>
             )}
           </div>
+
+          {/* All documents list */}
+          {!loading && files.length > 0 && (
+            <div>
+              <div className={styles.sectionHeader}>
+                <h2 className={styles.sectionTitle}>
+                  <HugeiconsIcon icon={File02Icon} size={16} color="currentColor" strokeWidth={1.5} />
+                  Tutti i documenti
+                  <span className={styles.countBadge}>{files.length}</span>
+                </h2>
+              </div>
+
+              <div className={styles.tableCard}>
+                <div className={styles.tableScroll}>
+                  <table className={styles.table}>
+                    <thead>
+                      <tr>
+                        <th className={styles.th}>Nome</th>
+                        <th className={styles.th}>Tipo</th>
+                        <th className={styles.th}>Dimensione</th>
+                        <th className={styles.th}>Caricato</th>
+                        <th className={styles.th} style={{ width: 60 }}></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {files.map((f) => (
+                        <tr
+                          key={f.path}
+                          className={styles.tr}
+                          onClick={() => window.open(f.url, '_blank', 'noopener,noreferrer')}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <td className={styles.td}>
+                            <div className={styles.rowNameCell}>
+                              <div className={styles.rowFileIcon}>
+                                <HugeiconsIcon icon={File02Icon} size={16} color="currentColor" strokeWidth={1.5} />
+                              </div>
+                              <span className={styles.rowFileName} title={f.name}>
+                                {prettifyFilename(f.name)}
+                              </span>
+                            </div>
+                          </td>
+                          <td className={styles.td}>
+                            <span className={styles.typeBadge}>PDF</span>
+                          </td>
+                          <td className={styles.td}>{formatSize(f.size)}</td>
+                          <td className={styles.td}>{formatDate(f.created_at)}</td>
+                          <td className={styles.td} style={{ textAlign: 'right' }}>
+                            <a
+                              href={f.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className={styles.downloadLink}
+                              title="Apri"
+                            >
+                              <HugeiconsIcon icon={ArrowUp02Icon} size={14} color="currentColor" strokeWidth={2} />
+                            </a>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>

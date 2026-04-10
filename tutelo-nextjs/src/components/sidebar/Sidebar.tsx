@@ -15,7 +15,7 @@ import {
   MoreVerticalIcon,
   Delete02Icon,
   UserGroupIcon,
-  Folder01Icon,
+  FileBoxIcon,
 } from '@hugeicons/core-free-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './sidebar.module.scss';
@@ -188,7 +188,7 @@ export default function Sidebar() {
           href="/folio"
           className={`${styles.navItem} ${pathname === '/folio' || pathname.startsWith('/folio/') ? styles.active : ''}`}
         >
-          <HugeiconsIcon icon={Folder01Icon} size={18} color="currentColor" strokeWidth={1.5} />
+          <HugeiconsIcon icon={FileBoxIcon} size={18} color="currentColor" strokeWidth={1.5} />
           Folio
         </Link>
 
