@@ -16,6 +16,7 @@ import {
   Delete02Icon,
   UserGroupIcon,
   FileBoxIcon,
+  DashboardSquare01Icon,
 } from '@hugeicons/core-free-icons';
 import { useAuth } from '@/contexts/AuthContext';
 import styles from './sidebar.module.scss';
@@ -209,6 +210,13 @@ export default function Sidebar() {
         >
           <HugeiconsIcon icon={UserGroupIcon} size={18} color="currentColor" strokeWidth={1.5} />
           Clienti
+        </Link>
+        <Link
+          href="/viste"
+          className={`${styles.navItem} ${pathname === '/viste' || pathname.startsWith('/viste/') ? styles.active : ''}`}
+        >
+          <HugeiconsIcon icon={DashboardSquare01Icon} size={18} color="currentColor" strokeWidth={1.5} />
+          Viste personalizzate
         </Link>
       </div>
 

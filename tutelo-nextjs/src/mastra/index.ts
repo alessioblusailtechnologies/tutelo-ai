@@ -3,6 +3,7 @@ import { routerAgent } from './agents/router';
 import { preventiviAgent } from './agents/preventivi';
 import { documentaleAgent } from './agents/documentale';
 import { titlerAgent } from './agents/titler';
+import { vistaBuilderAgent } from './agents/vista-builder';
 
 export const mastra = new Mastra({
   agents: {
@@ -10,5 +11,6 @@ export const mastra = new Mastra({
     preventivi: preventiviAgent,
     documentale: documentaleAgent,
     titler: titlerAgent,
+    vistaBuilder: vistaBuilderAgent,
   },
 });
